@@ -18,6 +18,15 @@ target_include_directories(my_project PRIVATE
     ${CMAKE_SOURCE_DIR}/../prettyprint/src
 )
 
+target_compile_options(my_project PRIVATE
+    -Wall
+    -Wextra
+    -Wpedantic
+    -Werror
+    -g
+)
+
 # Линковка со Slang
 target_link_libraries(my_project PRIVATE slang_slang)
+
 
