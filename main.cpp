@@ -1,11 +1,9 @@
+#include "processing_tokens.h"
 #include <slang/driver/Driver.h>
 #include <slang/syntax/SyntaxPrinter.h>
 #include <iostream>
-#include <prettyprint.h>
-#include "slang/syntax/SyntaxPrinter.h"
 
 #include "slang/parsing/ParserMetadata.h"
-#include "slang/syntax/SyntaxNode.h"
 #include "slang/syntax/SyntaxTree.h"
 #include "slang/text/SourceLocation.h"
 #include "slang/text/SourceManager.h"
@@ -15,9 +13,9 @@ using namespace slang::syntax;
 using namespace slang::parsing;
 
 
-void print_childs(const SyntaxNode &root){
-    //std::cout << "root : " << root.kind << "\n";
-    //std::cout << "subtree end \n";
+void print_childs(SyntaxNode &root){
+
+    auto doc = pp::nil();
 
     slang::size_t count_child = root.getChildCount();
     
@@ -25,13 +23,12 @@ void print_childs(const SyntaxNode &root){
         if (auto childNode = root.childNode(i); childNode){
             print_childs(*childNode);
         }
-            
         else if (auto token = root.childToken(i); token){
-            std::cout << "token start\n";
-            std::cout << token.toString() << "\n";
-            std::cout << token.kind << "\n";
-            std::cout << token.rawText() << "\n";
-            std::cout << "token end\n";
+            if(token.kind == TokenKind::ModuleKeyword){
+                auto internal_of_modul = root.childNode(i + 1);
+                processing_module(token, doc, *internal_of_modul);
+                return;
+            }
         } 
     }
     return;

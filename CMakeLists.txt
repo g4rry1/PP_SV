@@ -8,8 +8,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Путь к Slang
 add_subdirectory(${CMAKE_SOURCE_DIR}/../slang ${CMAKE_BINARY_DIR}/slang_build)
 
+add_subdirectory(${CMAKE_SOURCE_DIR}/../prettyprint ${CMAKE_BINARY_DIR}/prettyprint_build)
+
 # Добавляем исполняемый файл
-add_executable(my_project main.cpp)
+add_executable(my_project main.cpp processing_tokens.cpp)
 
 # Пути к заголовкам
 target_include_directories(my_project PRIVATE
@@ -18,15 +20,6 @@ target_include_directories(my_project PRIVATE
     ${CMAKE_SOURCE_DIR}/../prettyprint/src
 )
 
-target_compile_options(my_project PRIVATE
-    -Wall
-    -Wextra
-    -Wpedantic
-    -Werror
-    -g
-)
-
 # Линковка со Slang
-target_link_libraries(my_project PRIVATE slang_slang)
-
+target_link_libraries(my_project PRIVATE slang_slang prettyprint)
 
