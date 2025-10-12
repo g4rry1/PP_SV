@@ -15,7 +15,8 @@ using namespace slang::parsing;
 
 void print_childs(SyntaxNode &root){
 
-    auto doc = pp::nil();
+
+    auto doc = pp::nil();    
 
     slang::size_t count_child = root.getChildCount();
     
@@ -25,8 +26,10 @@ void print_childs(SyntaxNode &root){
         }
         else if (auto token = root.childToken(i); token){
             if(token.kind == TokenKind::ModuleKeyword){
-                auto internal_of_modul = root.childNode(i + 1);
-                processing_module(token, doc, *internal_of_modul);
+                auto result = processing_module(doc, root);
+                auto settings = std::cout << pp::set_width(200);
+                result = result + "endmodule";
+                settings << pp::set_max_indent(20) << result;
                 return;
             }
         } 
