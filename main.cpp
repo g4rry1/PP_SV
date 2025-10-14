@@ -1,7 +1,6 @@
-#include "processing_tokens.h"
+#include "PP_SV.h"
 #include <slang/driver/Driver.h>
 #include <slang/syntax/SyntaxPrinter.h>
-#include <iostream>
 
 #include "slang/parsing/ParserMetadata.h"
 #include "slang/syntax/SyntaxTree.h"
@@ -13,18 +12,13 @@ using namespace slang::syntax;
 using namespace slang::parsing;
 
 
-struct my_token {
-    TokenKind kind;
-    std::string text;
-};
-
 std::vector<my_token> all_tokens;
 
 
 void find_tokens(SyntaxNode &root){
 
 
-    auto doc = pp::nil();    
+    //auto doc = pp::nil();    
 
     slang::size_t count_child = root.getChildCount();
     
@@ -76,11 +70,7 @@ int main(int argc, char **argv){
     auto tree = driver.syntaxTrees.back();
     find_tokens(tree->root());
 
-    for (my_token element : all_tokens) {
-        std::cout << element.text << " ";
-    }
-
-
+    format_tokens(all_tokens);
 
     return 0;
 }
