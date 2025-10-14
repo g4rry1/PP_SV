@@ -13,7 +13,15 @@ using namespace slang::syntax;
 using namespace slang::parsing;
 
 
-void print_childs(SyntaxNode &root){
+struct my_token {
+    TokenKind kind;
+    std::string text;
+};
+
+std::vector<my_token> all_tokens;
+
+
+void find_tokens(SyntaxNode &root){
 
 
     auto doc = pp::nil();    
@@ -22,16 +30,26 @@ void print_childs(SyntaxNode &root){
     
     for(slang::size_t i = 0; i < count_child; i++){
         if (auto childNode = root.childNode(i); childNode){
-            print_childs(*childNode);
+            find_tokens(*childNode);
         }
         else if (auto token = root.childToken(i); token){
-            if(token.kind == TokenKind::ModuleKeyword){
-                auto result = processing_module(doc, root);
-                auto settings = std::cout << pp::set_width(200);
-                result = result + "endmodule";
-                settings << pp::set_max_indent(20) << result;
-                return;
+
+            auto list_of_trivia = token.trivia();
+            auto count_of_trivia = list_of_trivia.size();
+
+            for(size_t i = 0; i < count_of_trivia; i++){
+                if(list_of_trivia[i].kind == TriviaKind::LineComment){
+                    my_token trivia_token;
+                    trivia_token.kind = TokenKind::Unknown;
+                    trivia_token.text = list_of_trivia[i].getRawText();
+                    all_tokens.push_back(trivia_token);
+                }
             }
+
+            my_token new_token;
+            new_token.kind = token.kind;
+            new_token.text = token.rawText();
+            all_tokens.push_back(new_token);
         } 
     }
     return;
@@ -53,8 +71,16 @@ int main(int argc, char **argv){
         std::cerr << "error: failed to parse input files\n";
         return 1;
     }
+
+
     auto tree = driver.syntaxTrees.back();
-    print_childs(tree->root());
+    find_tokens(tree->root());
+
+    for (my_token element : all_tokens) {
+        std::cout << element.text << " ";
+    }
+
+
 
     return 0;
 }
