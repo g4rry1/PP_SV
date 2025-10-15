@@ -1,0 +1,48 @@
+# Build directories
+build/
+build_*/
+*_build/
+slang_build/
+prettyprint_build/
+bin/
+binaries/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+!CMakeLists.txt
+*.cbp
+*.a
+*.so
+*.dylib
+*.lib
+*.dll
+
+# Executables
+my_project
+*.exe
+*.app
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Documentation
+*.log
+*.tmp
+*.temp
