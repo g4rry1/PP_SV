@@ -185,7 +185,7 @@ static std::unordered_map<TokenKind, format_rule> rule_table = {
     {TokenKind::ForeachKeyword, {false, false, true, true, false, false}},
     {TokenKind::ForeverKeyword, {false, false, true, true, false, false}},
     {TokenKind::ForkKeyword, {false, false, true, true, true, false}},
-    {TokenKind::ForkJoinKeyword, {false, false, true, true, false, false}},
+    {TokenKind::ForkJoinKeyword, {false, false, true, true, false, true}},
     {TokenKind::FunctionKeyword, {true, false, true, true, true, false}},
     {TokenKind::GenerateKeyword, {true, false, true, true, true, false}},
     {TokenKind::GenVarKeyword, {false, false, true, true, false, false}},
@@ -212,9 +212,9 @@ static std::unordered_map<TokenKind, format_rule> rule_table = {
     {TokenKind::InterconnectKeyword, {false, false, true, true, false, false}},
     {TokenKind::InterfaceKeyword, {true, false, true, true, true, false}},
     {TokenKind::IntersectKeyword, {false, false, true, true, false, false}},
-    {TokenKind::JoinKeyword, {true, true, true, false, false, false}},
-    {TokenKind::JoinAnyKeyword, {true, true, true, false, false, false}},
-    {TokenKind::JoinNoneKeyword, {true, true, true, false, false, false}},
+    {TokenKind::JoinKeyword, {true, true, true, false, false, true}},
+    {TokenKind::JoinAnyKeyword, {true, true, true, false, false, true}},
+    {TokenKind::JoinNoneKeyword, {true, true, true, false, false, true}},
     {TokenKind::LargeKeyword, {false, false, true, true, false, false}},
     {TokenKind::LetKeyword, {false, false, true, true, false, false}},
     {TokenKind::LibListKeyword, {false, false, true, true, false, false}},
@@ -371,6 +371,10 @@ int format_tokens(vector<my_token>& tokens){
     vector<layout_item> layout;
     int currentIndent = 0;
 
+    bool next_blockStart_valid = true;
+
+    bool disable_or_wait_flag = false;
+
     for (size_t i = 0; i < tokens.size(); i++) {
         const my_token& tok = tokens[i];
 
@@ -393,22 +397,73 @@ int format_tokens(vector<my_token>& tokens){
         if(rule_cur.blockStart){
             //cout << "!!!"<<tok.text;
              currentIndent++;
-             if(tok.kind == TokenKind::InterfaceKeyword && tokens[i + 1].kind == TokenKind::ClassKeyword){
-                currentIndent--;
-             }
         }
         if(rule_cur.spaceAfter) item.spaceAfter = true;
         if(rule_cur.spaceBefore) item.spaceBefore = true;
         if(rule_cur.newlineAfter) item.newlineAfter = true;
         if(rule_cur.newlineBefore) item.newlineBefore = true;
 
-        if(i > 0 && tok.kind == TokenKind::ClassKeyword && tokens[i - 1].kind == TokenKind::InterfaceKeyword){
-            item.newlineBefore = false;
+        
+        //Особые случаи
+        if(disable_or_wait_flag){
+            if(tok.kind == TokenKind::ForkKeyword
+            || tok.kind == TokenKind::TaskKeyword
+            || tok.kind == TokenKind::FunctionKeyword){
+                item.newlineBefore = false;
+                currentIndent--;
+            }
+            disable_or_wait_flag = false;
         }
-        if(i > 0 && tokens[i - 1].kind == TokenKind::VirtualKeyword){
-            item.newlineBefore = false;
-            if(i > 1 && tokens[i - 2].kind == TokenKind::PureKeyword) currentIndent--;
+
+        if(tok.kind == TokenKind::DisableKeyword || tok.kind == TokenKind::WaitKeyword) disable_or_wait_flag = true;
+
+        if(tok.kind == TokenKind::InterfaceKeyword && tokens[i + 1].kind == TokenKind::ClassKeyword){
+                currentIndent--;
         }
+        if(i > 0 && tok.kind == TokenKind::ClassKeyword 
+             && tokens[i - 1].kind == TokenKind::VirtualKeyword){
+                item.newlineBefore = false;
+        }
+        if(i > 0 && tok.kind == TokenKind::InterfaceKeyword 
+             && tokens[i - 1].kind == TokenKind::VirtualKeyword){
+                item.newlineBefore = false;
+                currentIndent--;
+        }
+        if(i > 0 && tokens[i - 1].kind == TokenKind::InterfaceKeyword){
+            if(tok.kind == TokenKind::ClassKeyword){
+                item.newlineBefore = false;
+            }
+        }
+        if(i > 0 && tokens[i - 1].kind == TokenKind::TypedefKeyword){
+            if(tok.kind == TokenKind::ClassKeyword || tok.kind == TokenKind::InterfaceKeyword){
+                item.newlineBefore = false;
+                currentIndent--;
+            }
+        }
+
+        if(tok.kind == TokenKind::ExternKeyword || tok.kind == TokenKind::PureKeyword){
+            next_blockStart_valid = false;
+        }
+        if(rule_cur.blockStart && !next_blockStart_valid){
+            if(tok.kind == TokenKind::FunctionKeyword
+            || tok.kind == TokenKind::TaskKeyword
+            || tok.kind == TokenKind::ConstraintKeyword){
+                item.newlineBefore = false;
+                currentIndent--;
+            }
+            next_blockStart_valid = true;
+        }
+        if(i > 0 && tok.kind == TokenKind::JoinKeyword){
+            if(tokens[i - 1].kind == TokenKind::RandKeyword){
+                item.newlineBefore = false;
+                currentIndent++;
+            }
+        }
+        if(tok.kind == TokenKind::PropertyKeyword && tokens[i + 1].kind != TokenKind::Identifier){
+            currentIndent--;
+        }
+
+        //Конец особых случаев
 
         layout.push_back(item);
     }
