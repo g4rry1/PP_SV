@@ -21,7 +21,7 @@ static std::unordered_map<TokenKind, format_rule> rule_table = {
     {TokenKind::Placeholder, {false, false, false, false, false, false}},
     {TokenKind::Apostrophe, {false, false, false, false, false, false}},
     {TokenKind::ApostropheOpenBrace, {false, false, false, false, false, false}},
-    {TokenKind::OpenBrace, {false, false, true, false, true, false}},
+    {TokenKind::OpenBrace, {false, false, true, false, false, false}},
     {TokenKind::CloseBrace, {true, true, false, false, false, false}},
     {TokenKind::OpenBracket, {false, false, false, false, false, false}},
     {TokenKind::CloseBracket, {false, false, false, false, false, false}},
@@ -212,9 +212,9 @@ static std::unordered_map<TokenKind, format_rule> rule_table = {
     {TokenKind::InterconnectKeyword, {false, false, true, true, false, false}},
     {TokenKind::InterfaceKeyword, {true, false, true, true, true, false}},
     {TokenKind::IntersectKeyword, {false, false, true, true, false, false}},
-    {TokenKind::JoinKeyword, {true, true, true, false, false, true}},
-    {TokenKind::JoinAnyKeyword, {true, true, true, false, false, true}},
-    {TokenKind::JoinNoneKeyword, {true, true, true, false, false, true}},
+    {TokenKind::JoinKeyword, {true, true, true, false, false, false}},
+    {TokenKind::JoinAnyKeyword, {true, true, true, false, false, false}},
+    {TokenKind::JoinNoneKeyword, {true, true, true, false, false, false}},
     {TokenKind::LargeKeyword, {false, false, true, true, false, false}},
     {TokenKind::LetKeyword, {false, false, true, true, false, false}},
     {TokenKind::LibListKeyword, {false, false, true, true, false, false}},
@@ -262,7 +262,7 @@ static std::unordered_map<TokenKind, format_rule> rule_table = {
     {TokenKind::RandKeyword, {false, false, true, true, false, false}},
     {TokenKind::RandCKeyword, {false, false, true, true, false, false}},
     {TokenKind::RandCaseKeyword, {false, false, true, true, true, false}},
-    {TokenKind::RandSequenceKeyword, {false, false, true, true, false, false}},
+    {TokenKind::RandSequenceKeyword, {false, false, true, true, true, false}},
     {TokenKind::RcmosKeyword, {false, false, true, true, false, false}},
     {TokenKind::RealKeyword, {false, false, true, true, false, false}},
     {TokenKind::RealTimeKeyword, {false, false, true, true, false, false}},
@@ -367,12 +367,13 @@ static std::unordered_map<TokenKind, format_rule> rule_table = {
     
 
 
-void format_tokens(vector<my_token>& tokens){
+int format_tokens(vector<my_token>& tokens){
     vector<layout_item> layout;
     int currentIndent = 0;
 
     for (size_t i = 0; i < tokens.size(); i++) {
         const my_token& tok = tokens[i];
+
         auto rule = rule_table.find(tok.kind);
 
         format_rule rule_cur = (rule != rule_table.end())
@@ -389,12 +390,25 @@ void format_tokens(vector<my_token>& tokens){
         item.text = tok.text;
         item.indentLevel = currentIndent;
 
-        if(rule_cur.blockStart) currentIndent++;
-        
+        if(rule_cur.blockStart){
+            //cout << "!!!"<<tok.text;
+             currentIndent++;
+             if(tok.kind == TokenKind::InterfaceKeyword && tokens[i + 1].kind == TokenKind::ClassKeyword){
+                currentIndent--;
+             }
+        }
         if(rule_cur.spaceAfter) item.spaceAfter = true;
         if(rule_cur.spaceBefore) item.spaceBefore = true;
         if(rule_cur.newlineAfter) item.newlineAfter = true;
         if(rule_cur.newlineBefore) item.newlineBefore = true;
+
+        if(i > 0 && tok.kind == TokenKind::ClassKeyword && tokens[i - 1].kind == TokenKind::InterfaceKeyword){
+            item.newlineBefore = false;
+        }
+        if(i > 0 && tokens[i - 1].kind == TokenKind::VirtualKeyword){
+            item.newlineBefore = false;
+            if(i > 1 && tokens[i - 2].kind == TokenKind::PureKeyword) currentIndent--;
+        }
 
         layout.push_back(item);
     }
@@ -415,5 +429,6 @@ void format_tokens(vector<my_token>& tokens){
             cout << s;
         }
     }
-    return;
+
+    return currentIndent;
 }

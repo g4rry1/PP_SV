@@ -70,7 +70,10 @@ int main(int argc, char **argv){
     auto tree = driver.syntaxTrees.back();
     find_tokens(tree->root());
 
-    format_tokens(all_tokens);
+    if(int a = format_tokens(all_tokens)){
+        std::cerr << "openBlocks more than closeBlocks " << a << '\n';
+        return 1;
+    };
 
     return 0;
 }
