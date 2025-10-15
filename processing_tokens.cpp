@@ -22,7 +22,7 @@ static std::unordered_map<TokenKind, format_rule> rule_table = {
     {TokenKind::Apostrophe, {false, false, false, false, false, false}},
     {TokenKind::ApostropheOpenBrace, {false, false, false, false, false, false}},
     {TokenKind::OpenBrace, {false, false, true, false, true, false}},
-    {TokenKind::CloseBrace, {true, true, false, false, false, true}},
+    {TokenKind::CloseBrace, {true, true, false, false, false, false}},
     {TokenKind::OpenBracket, {false, false, false, false, false, false}},
     {TokenKind::CloseBracket, {false, false, false, false, false, false}},
     {TokenKind::OpenParenthesis, {false, false, true, false, false, false}},
@@ -132,7 +132,7 @@ static std::unordered_map<TokenKind, format_rule> rule_table = {
     {TokenKind::CHandleKeyword, {false, false, true, true, false, false}},
     {TokenKind::CheckerKeyword, {true, false, true, true, true, false}},
     {TokenKind::ClassKeyword, {true, false, true, true, true, false}},
-    {TokenKind::ClockingKeyword, {false, false, true, true, false, false}},
+    {TokenKind::ClockingKeyword, {false, false, true, true, true, false}},
     {TokenKind::CmosKeyword, {false, false, true, true, false, false}},
     {TokenKind::ConfigKeyword, {true, false, true, true, true, false}},
     {TokenKind::ConstKeyword, {false, false, true, true, false, false}},
@@ -261,7 +261,7 @@ static std::unordered_map<TokenKind, format_rule> rule_table = {
     {TokenKind::PureKeyword, {false, false, true, true, false, false}},
     {TokenKind::RandKeyword, {false, false, true, true, false, false}},
     {TokenKind::RandCKeyword, {false, false, true, true, false, false}},
-    {TokenKind::RandCaseKeyword, {false, false, true, true, false, false}},
+    {TokenKind::RandCaseKeyword, {false, false, true, true, true, false}},
     {TokenKind::RandSequenceKeyword, {false, false, true, true, false, false}},
     {TokenKind::RcmosKeyword, {false, false, true, true, false, false}},
     {TokenKind::RealKeyword, {false, false, true, true, false, false}},
@@ -381,7 +381,10 @@ void format_tokens(vector<my_token>& tokens){
 
         layout_item item;
 
-        if(rule_cur.blockEnd) currentIndent--;
+        if(rule_cur.blockEnd){
+            //cout << "!!!"<<tok.text;
+             currentIndent--;
+        }
 
         item.text = tok.text;
         item.indentLevel = currentIndent;
