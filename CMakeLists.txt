@@ -5,21 +5,32 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Путь к Slang
-add_subdirectory(${CMAKE_SOURCE_DIR}/../slang ${CMAKE_BINARY_DIR}/slang_build)
+if(NOT EXISTS ${CMAKE_SOURCE_DIR}/lib/slang)
+    message(FATAL_ERROR "Slang submodule not found! Run: git submodule update --init --recursive")
+endif()
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/../prettyprint ${CMAKE_BINARY_DIR}/prettyprint_build)
+add_subdirectory(lib/slang ${CMAKE_BINARY_DIR}/slang_build)
 
-# Добавляем исполняемый файл
+if(EXISTS ${CMAKE_SOURCE_DIR}/lib/prettyprint)
+    add_subdirectory(lib/prettyprint ${CMAKE_BINARY_DIR}/prettyprint_build)
+endif()
+
 add_executable(my_project src/lib/main.cpp src/lib/processing_tokens.cpp)
 
-# Пути к заголовкам
 target_include_directories(my_project PRIVATE
-    ${CMAKE_SOURCE_DIR}/../slang/include
-    ${CMAKE_SOURCE_DIR}/../slang/external
-    ${CMAKE_SOURCE_DIR}/../prettyprint/src
+    lib/slang/include
+    lib/slang/external
 )
 
-# Линковка со Slang
-target_link_libraries(my_project PRIVATE slang_slang prettyprint)
+if(EXISTS ${CMAKE_SOURCE_DIR}/lib/prettyprint)
+    target_include_directories(my_project PRIVATE
+        lib/prettyprint/src
+    )
+endif()
 
+target_link_libraries(my_project PRIVATE slang_slang)
+
+# # Если prettyprint есть, линкуем и его
+# if(EXISTS ${CMAKE_SOURCE_DIR}/lib/prettyprint)
+#     target_link_libraries(my_project PRIVATE prettyprint)
+# endif()

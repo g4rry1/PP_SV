@@ -1,0 +1,3 @@
+[submodule "lib/slang"]
+	path = lib/slang
+	url = https://github.com/MikePopoloski/slang.git
