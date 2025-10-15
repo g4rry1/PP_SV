@@ -11,7 +11,7 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/../slang ${CMAKE_BINARY_DIR}/slang_build)
 add_subdirectory(${CMAKE_SOURCE_DIR}/../prettyprint ${CMAKE_BINARY_DIR}/prettyprint_build)
 
 # Добавляем исполняемый файл
-add_executable(my_project main.cpp processing_tokens.cpp)
+add_executable(my_project src/lib/main.cpp src/lib/processing_tokens.cpp)
 
 # Пути к заголовкам
 target_include_directories(my_project PRIVATE
