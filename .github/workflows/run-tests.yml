@@ -25,11 +25,11 @@ jobs:
           ninja-build \
           git \
           libgtest-dev \
-          googletest
+          googletest \
+          python3
         
     - name: Build Google Test
       run: |
-        sudo apt-get install -y libgtest-dev
         cd /usr/src/gtest
         sudo cmake CMakeLists.txt
         sudo make
@@ -37,7 +37,6 @@ jobs:
         
     - name: Build Slang parser
       run: |
-        # Если slang нужно собрать отдельно
         if [ -d "lib/slang" ]; then
           mkdir -p lib/slang/build
           cd lib/slang/build
@@ -71,6 +70,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: test-results
-        path: |
-          tests_files/result_of_test.sv
+        path: tests_files/result_of_test.sv
         retention-days: 7
