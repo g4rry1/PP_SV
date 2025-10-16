@@ -1,90 +1,65 @@
-name: Run SystemVerilog Tests
+name: CI Tests
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master, develop, feature/* ]
   pull_request:
     branches: [ main, master ]
 
 jobs:
-  test:
+  build-and-test:
+    name: Build and Test (${{ matrix.build-type }})
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        build-type: [Debug, Release]
     
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v4
       with:
         submodules: recursive
-        
-    - name: Check project structure
-      run: |
-        echo "Current directory structure:"
-        ls -la
-        echo ""
-        echo "tests_files content:"
-        if [ -d "tests_files" ]; then
-          ls -la tests_files/
-          echo ""
-          echo "Subdirectories in tests_files:"
-          find tests_files -maxdepth 1 -type d
-        else
-          echo "ERROR: tests_files directory not found in root!"
-          exit 1
-        fi
+        token: ${{ secrets.GITHUB_TOKEN }}
         
     - name: Install system dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y \
-          build-essential \
           cmake \
-          ninja-build \
-          git \
+          build-essential \
           libgtest-dev \
           googletest \
-          python3
-        
-    - name: Build Google Test
+          google-mock \
+          pkg-config
+          
+    - name: Configure CMake
       run: |
-        cd /usr/src/gtest
-        sudo cmake CMakeLists.txt
-        sudo make
-        sudo cp lib/*.a /usr/lib
-        
-    - name: Build Slang parser
-      run: |
-        if [ -d "lib/slang" ]; then
-          mkdir -p lib/slang/build
-          cd lib/slang/build
-          cmake ..
-          make -j4
-        fi
-        
-    - name: Configure project
-      run: |
-        mkdir -p build
-        cd build
-        cmake -DCMAKE_BUILD_TYPE=Release ..
+        mkdir -p build/${{ matrix.build-type }}
+        cd build/${{ matrix.build-type }}
+        cmake ../.. -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
         
     - name: Build project
       run: |
-        cd build
-        make -j4
+        cd build/${{ matrix.build-type }}
+        make -j$(nproc)
         
-    - name: List test files
+    - name: Test
       run: |
-        find tests_files -name "*.sv" | head -20
-        echo "Total .sv files: $(find tests_files -name "*.sv" | wc -l)"
+        cd build/${{ matrix.build-type }}
+        ctest --verbose --output-on-failure
         
-    - name: Run tests
+    - name: Run custom test executable
       run: |
-        cd build
-        ./run_tests ../tests_files/
+        cd build/${{ matrix.build-type }}
+        if [ -f "./run_tests" ]; then
+          ./run_tests --gtest_output="xml:test_results.xml"
+        fi
         
     - name: Upload test results
-      if: always()
       uses: actions/upload-artifact@v4
+      if: always()
       with:
-        name: test-results
-        path: tests_files/result_of_test.sv
-        retention-days: 7
+        name: test-results-${{ matrix.build-type }}
+        path: |
+          build/${{ matrix.build-type }}/test_results.xml
+          build/${{ matrix.build-type }}/Testing/**/*.xml
