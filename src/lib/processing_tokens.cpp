@@ -35,7 +35,7 @@ static std::unordered_map<TokenKind, format_rule> rule_table = {
     {TokenKind::Comma, {false, true, false, true, false, false}},
     {TokenKind::Dot, {false, false, false, false, false, false}},
     {TokenKind::Slash, {false, false, true, true, false, false}},
-    {TokenKind::Star, {false, false, true, true, false, false}},
+    {TokenKind::Star, {false, false, false, false, false, false}},
     {TokenKind::DoubleStar, {false, false, true, true, false, false}},
     {TokenKind::StarArrow, {false, false, true, true, false, false}},
     {TokenKind::Plus, {false, false, true, true, false, false}},

@@ -1,80 +1,91 @@
-#include <iostream>
-#include <vector>
-#include <string>
-#include <cstdlib>
+#include <gtest/gtest.h>
 #include <filesystem>
+#include <string>
+#include <vector>
+#include <cstdlib>
+#include <iostream>
 
 namespace fs = std::filesystem;
 
-int main() {
-    std::string test_dir = "tests_files";
+std::vector<std::string> collect_sv_files(const std::string& test_dir) {
     std::vector<std::string> test_files;
-    
     if (!fs::exists(test_dir)) {
-        std::cerr << "Error: Directory '" << test_dir << "' not found!" << std::endl;
-        return 1;
+        throw std::runtime_error("Directory '" + test_dir + "' not found!");
     }
-    
-    try {
-        for (const auto& entry : fs::recursive_directory_iterator(test_dir)) {
-            if (entry.is_regular_file() && entry.path().extension() == ".sv") {
-                test_files.push_back(entry.path().string());
-            }
+
+    for (const auto& entry : fs::recursive_directory_iterator(test_dir)) {
+        if (entry.is_regular_file() && entry.path().extension() == ".sv") {
+            test_files.push_back(entry.path().string());
         }
-    } catch (const fs::filesystem_error& ex) {
-        std::cerr << "Filesystem error: " << ex.what() << std::endl;
-        return 1;
     }
-    
-    if (test_files.empty()) {
-        std::cout << "No .sv files found in directory: " << test_dir << std::endl;
-        return 0;
+
+    return test_files;
+}
+
+// Функция, которая выполняет тест одного файла
+::testing::AssertionResult RunPrettyPrinterTest(const std::string& file) {
+    fs::path test_dir = "tests_files";
+    fs::path relative_path = fs::relative(file, test_dir);
+
+    std::string output_file = "tests_files/result_of_test.sv";
+
+    // 1. Запуск программы pretty-printer
+    std::string command_1 = "./build/my_project " + file + " > " + output_file;
+    int result1 = std::system(command_1.c_str());
+
+    if (result1 != 0) {
+        return ::testing::AssertionFailure()
+               << "Program returned error for file: " << relative_path;
     }
-    
-    
-    int passed = 0;
-    int failed = 0;
-    int parsing_test_file_error = 0;
-    
-    for (const auto& file : test_files) {
-        fs::path relative_path = fs::relative(file, test_dir);
-        
-        std::string command_1 = "./build/my_project " + file + " > tests_files/result_of_test.sv";
-        int result1 = std::system(command_1.c_str());
-        
-        if (result1 != 0) {
-            std::cout << "❌ FAILED: Your program returned error" << std::endl;
-            std::cout << "Testing: " << relative_path.string() << std::endl;
-            failed++;
-            std::cout << "------------------------" << std::endl;
-            continue;
-        }
-        
-        std::string command_2 = "~/pretty/slang/build/bin/slang --parse-only tests_files/result_of_test.sv > /dev/null 2>&1";
-        int result_of_parsing = std::system(command_2.c_str());
-        
-        if (result_of_parsing == 0) {
-            //std::cout << "✅ PASSED" << std::endl;
-            passed++;
+
+    // 2. Проверка, что результат парсится slang’ом
+    std::string command_2 =
+        "~/pretty/slang/build/bin/slang --parse-only " + output_file + " > /dev/null 2>&1";
+    int result_parsed = std::system(command_2.c_str());
+
+    if (result_parsed != 0) {
+        // Проверим, может быть исходный тест-файл тоже не парсится
+        std::string command_3 =
+            "~/pretty/slang/build/bin/slang --parse-only " + file + " > /dev/null 2>&1";
+        int result_test_file = std::system(command_3.c_str());
+
+        if (result_test_file != 0) {
+             std::cout << "[  SKIPPED  ] Original file does not parse: "
+              << relative_path << std::endl;
+                return ::testing::AssertionSuccess();
         } else {
-            std::string command_3 = "~/pretty/slang/build/bin/slang --parse-only " + file;
-            int result_of_parsing_test_file = std::system(command_1.c_str());
-            if(result_of_parsing_test_file){
-                std::cout << "❌ FAILED: slang parsing failed" << std::endl;
-                std::cout << "Testing: " << relative_path.string() << std::endl;
-                failed++;
-                std::cout << "------------------------" << std::endl;
-            }
-            else parsing_test_file_error++;
+            return ::testing::AssertionFailure()
+                   << "Pretty printer output failed to parse for file: "
+                   << relative_path;
         }
     }
-    
-    std::cout << "\n=== FINAL RESULTS ===" << std::endl;
-    std::cout << "Total files: " << test_files.size() << std::endl;
-    std::cout << "Passed: " << passed << std::endl;
-    std::cout << "Failed: " << failed << std::endl;
-    std::cout << "Failed parcing test file: " << parsing_test_file_error << std::endl;
-    std::cout << "Success rate: " << (passed * 100 / test_files.size()) << "%" << std::endl;
-    
-    return failed == 0 ? 0 : 1;
+
+    return ::testing::AssertionSuccess();
+}
+
+// ----------- ТЕСТЫ ------------
+
+// Мы создаем параметризованный тест, чтобы каждый .sv файл стал отдельным тестом
+class PrettyPrinterTest : public ::testing::TestWithParam<std::string> {};
+
+TEST_P(PrettyPrinterTest, SystemVerilogParsing) {
+    EXPECT_TRUE(RunPrettyPrinterTest(GetParam()));
+}
+
+// Генерация тестов
+INSTANTIATE_TEST_SUITE_P(
+    AllSVTests,
+    PrettyPrinterTest,
+    ::testing::ValuesIn(collect_sv_files("tests_files"))
+);
+
+// Главная функция
+int main(int argc, char** argv) {
+    ::testing::InitGoogleTest(&argc, argv);
+    try {
+        return RUN_ALL_TESTS();
+    } catch (const std::exception& ex) {
+        std::cerr << "Exception: " << ex.what() << std::endl;
+        return 1;
+    }
 }
