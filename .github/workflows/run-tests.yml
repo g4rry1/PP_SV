@@ -38,21 +38,9 @@ jobs:
         cd build
         make -j4
         
-    - name: Prepare test environment
-      run: |
-        # Копируем ВСЁ нужное в build директорию
-        cd build
-        # Копируем тестовые файлы
-        cp -r ../src/tests/tests_files .
-        # Копируем исполняемые файлы если нужно
-        cp my_project . || echo "my_project already in place"
-        # Копируем slang
-        cp lib/slang/build/bin/slang . 2>/dev/null || echo "Slang not found in expected location"
-        
     - name: Install slang if needed
       run: |
-        cd build
-        if [ ! -f "./slang" ]; then
+        if [ ! -f "./build/lib/slang/build/bin/slang" ]; then
           echo "Installing system slang"
           sudo apt-get install -y slang
         else
@@ -62,3 +50,5 @@ jobs:
     - name: Run tests
       run: |
         ./build/run_tests
+      working-directory: .
+      
