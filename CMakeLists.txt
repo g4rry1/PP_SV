@@ -59,3 +59,22 @@ target_link_libraries(run_tests PRIVATE slang_slang)
 add_test(NAME SystemTests COMMAND run_tests WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure)
+
+
+find_program(CLANG_FORMAT_EXE NAMES clang-format)
+
+if(CLANG_FORMAT_EXE)
+    set(FORMAT_SOURCE_FILES
+        src/lib/main.cpp
+        src/lib/PP_SV.h
+        src/lib/processing_tokens.cpp
+        src/tests/tests.cpp
+    )
+    
+    add_custom_target(format
+        COMMAND ${CLANG_FORMAT_EXE} -style=file -i ${FORMAT_SOURCE_FILES}
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        COMMENT "Formatting specified source files"
+        VERBATIM
+    )
+endif()

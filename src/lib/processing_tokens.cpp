@@ -6,7 +6,6 @@ using namespace std;
 using namespace slang::syntax;
 using namespace slang::parsing;
 
-
 static std::unordered_map<TokenKind, format_rule> rule_table = {
     {TokenKind::Unknown, {false, true, false, false, false, false}},
     {TokenKind::EndOfFile, {false, false, false, false, false, false}},
@@ -101,7 +100,7 @@ static std::unordered_map<TokenKind, format_rule> rule_table = {
     {TokenKind::DoubleAnd, {false, false, true, true, false, false}},
     {TokenKind::TripleAnd, {false, false, true, true, false, false}},
     {TokenKind::OneStep, {false, false, false, false, false, false}},
-    
+
     // Keywords
     {TokenKind::AcceptOnKeyword, {false, false, true, true, false, false}},
     {TokenKind::AliasKeyword, {false, false, true, true, false, false}},
@@ -351,7 +350,7 @@ static std::unordered_map<TokenKind, format_rule> rule_table = {
     {TokenKind::WOrKeyword, {false, false, true, true, false, false}},
     {TokenKind::XnorKeyword, {false, false, true, true, false, false}},
     {TokenKind::XorKeyword, {false, false, true, true, false, false}},
-    
+
     {TokenKind::UnitSystemName, {false, false, false, false, false, false}},
     {TokenKind::RootSystemName, {false, false, false, false, false, false}},
     {TokenKind::Directive, {false, false, false, false, false, false}},
@@ -362,12 +361,9 @@ static std::unordered_map<TokenKind, format_rule> rule_table = {
     {TokenKind::MacroEscapedQuote, {false, false, false, false, false, false}},
     {TokenKind::MacroPaste, {false, false, false, false, false, false}},
     {TokenKind::EmptyMacroArgument, {false, false, false, false, false, false}},
-    {TokenKind::LineContinuation, {false, false, false, false, false, false}}
-};
-    
+    {TokenKind::LineContinuation, {false, false, false, false, false, false}}};
 
-
-int format_tokens(vector<my_token>& tokens){
+int format_tokens(vector<my_token>& tokens) {
     vector<layout_item> layout;
     int currentIndent = 0;
 
@@ -381,106 +377,111 @@ int format_tokens(vector<my_token>& tokens){
         auto rule = rule_table.find(tok.kind);
 
         format_rule rule_cur = (rule != rule_table.end())
-            ? rule->second
-            : format_rule{false,false,true,true,false,false};
+                                   ? rule->second
+                                   : format_rule{false, false, true, true, false, false};
 
         layout_item item;
 
-        if(rule_cur.blockEnd){
-            //cout << "!!!"<<tok.text;
-             currentIndent--;
+        if (rule_cur.blockEnd) {
+            // cout << "!!!"<<tok.text;
+            currentIndent--;
         }
 
         item.text = tok.text;
         item.indentLevel = currentIndent;
 
-        if(rule_cur.blockStart){
-            //cout << "!!!"<<tok.text;
-             currentIndent++;
+        if (rule_cur.blockStart) {
+            // cout << "!!!"<<tok.text;
+            currentIndent++;
         }
-        if(rule_cur.spaceAfter) item.spaceAfter = true;
-        if(rule_cur.spaceBefore) item.spaceBefore = true;
-        if(rule_cur.newlineAfter) item.newlineAfter = true;
-        if(rule_cur.newlineBefore) item.newlineBefore = true;
+        if (rule_cur.spaceAfter)
+            item.spaceAfter = true;
+        if (rule_cur.spaceBefore)
+            item.spaceBefore = true;
+        if (rule_cur.newlineAfter)
+            item.newlineAfter = true;
+        if (rule_cur.newlineBefore)
+            item.newlineBefore = true;
 
-        
-        //Особые случаи
-        if(disable_or_wait_flag){
-            if(tok.kind == TokenKind::ForkKeyword
-            || tok.kind == TokenKind::TaskKeyword
-            || tok.kind == TokenKind::FunctionKeyword){
+        // Особые случаи
+        if (disable_or_wait_flag) {
+            if (tok.kind == TokenKind::ForkKeyword || tok.kind == TokenKind::TaskKeyword ||
+                tok.kind == TokenKind::FunctionKeyword) {
                 item.newlineBefore = false;
                 currentIndent--;
             }
             disable_or_wait_flag = false;
         }
 
-        if(tok.kind == TokenKind::DisableKeyword || tok.kind == TokenKind::WaitKeyword) disable_or_wait_flag = true;
+        if (tok.kind == TokenKind::DisableKeyword || tok.kind == TokenKind::WaitKeyword)
+            disable_or_wait_flag = true;
 
-        if(tok.kind == TokenKind::InterfaceKeyword && tokens[i + 1].kind == TokenKind::ClassKeyword){
-                currentIndent--;
+        if (tok.kind == TokenKind::InterfaceKeyword &&
+            tokens[i + 1].kind == TokenKind::ClassKeyword) {
+            currentIndent--;
         }
-        if(i > 0 && tok.kind == TokenKind::ClassKeyword 
-             && tokens[i - 1].kind == TokenKind::VirtualKeyword){
-                item.newlineBefore = false;
+        if (i > 0 && tok.kind == TokenKind::ClassKeyword &&
+            tokens[i - 1].kind == TokenKind::VirtualKeyword) {
+            item.newlineBefore = false;
         }
-        if(i > 0 && tok.kind == TokenKind::InterfaceKeyword 
-             && tokens[i - 1].kind == TokenKind::VirtualKeyword){
-                item.newlineBefore = false;
-                currentIndent--;
+        if (i > 0 && tok.kind == TokenKind::InterfaceKeyword &&
+            tokens[i - 1].kind == TokenKind::VirtualKeyword) {
+            item.newlineBefore = false;
+            currentIndent--;
         }
-        if(i > 0 && tokens[i - 1].kind == TokenKind::InterfaceKeyword){
-            if(tok.kind == TokenKind::ClassKeyword){
+        if (i > 0 && tokens[i - 1].kind == TokenKind::InterfaceKeyword) {
+            if (tok.kind == TokenKind::ClassKeyword) {
                 item.newlineBefore = false;
             }
         }
-        if(i > 0 && tokens[i - 1].kind == TokenKind::TypedefKeyword){
-            if(tok.kind == TokenKind::ClassKeyword || tok.kind == TokenKind::InterfaceKeyword){
+        if (i > 0 && tokens[i - 1].kind == TokenKind::TypedefKeyword) {
+            if (tok.kind == TokenKind::ClassKeyword || tok.kind == TokenKind::InterfaceKeyword) {
                 item.newlineBefore = false;
                 currentIndent--;
             }
         }
 
-        if(tok.kind == TokenKind::ExternKeyword || tok.kind == TokenKind::PureKeyword){
+        if (tok.kind == TokenKind::ExternKeyword || tok.kind == TokenKind::PureKeyword) {
             next_blockStart_valid = false;
         }
-        if(rule_cur.blockStart && !next_blockStart_valid){
-            if(tok.kind == TokenKind::FunctionKeyword
-            || tok.kind == TokenKind::TaskKeyword
-            || tok.kind == TokenKind::ConstraintKeyword){
+        if (rule_cur.blockStart && !next_blockStart_valid) {
+            if (tok.kind == TokenKind::FunctionKeyword || tok.kind == TokenKind::TaskKeyword ||
+                tok.kind == TokenKind::ConstraintKeyword) {
                 item.newlineBefore = false;
                 currentIndent--;
             }
             next_blockStart_valid = true;
         }
-        if(i > 0 && tok.kind == TokenKind::JoinKeyword){
-            if(tokens[i - 1].kind == TokenKind::RandKeyword){
+        if (i > 0 && tok.kind == TokenKind::JoinKeyword) {
+            if (tokens[i - 1].kind == TokenKind::RandKeyword) {
                 item.newlineBefore = false;
                 currentIndent++;
             }
         }
-        if(tok.kind == TokenKind::PropertyKeyword && tokens[i + 1].kind != TokenKind::Identifier){
+        if (tok.kind == TokenKind::PropertyKeyword && tokens[i + 1].kind != TokenKind::Identifier) {
             currentIndent--;
         }
 
-        //Конец особых случаев
+        // Конец особых случаев
 
         layout.push_back(item);
     }
 
     for (size_t i = 0; i < layout.size(); i++) {
         auto item = layout[i];
-        if(item.newlineBefore){ 
+        if (item.newlineBefore) {
             cout << '\n';
-            string s(item.indentLevel,'\t');
+            string s(item.indentLevel, '\t');
             cout << s;
         }
-        if(item.spaceBefore) cout << ' ';
+        if (item.spaceBefore)
+            cout << ' ';
         cout << item.text;
-        if(item.spaceAfter) cout << ' ';
-        if(item.newlineAfter){ 
+        if (item.spaceAfter)
+            cout << ' ';
+        if (item.newlineAfter) {
             cout << '\n';
-            string s(item.indentLevel,'\t');
+            string s(item.indentLevel, '\t');
             cout << s;
         }
     }

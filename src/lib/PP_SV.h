@@ -1,12 +1,11 @@
-#include "slang/syntax/SyntaxTree.h"
 #include <iostream>
 
+#include "slang/syntax/SyntaxTree.h"
 
 struct my_token {
     slang::parsing::TokenKind kind;
     std::string text;
 };
-
 
 struct layout_item {
     std::string text;
@@ -21,10 +20,9 @@ struct format_rule {
     bool newlineBefore = false;
     bool newlineAfter = false;
     bool spaceBefore = false;
-    bool spaceAfter = false; 
+    bool spaceAfter = false;
     bool blockStart = false;
     bool blockEnd = false;
 };
-
 
 int format_tokens(std::vector<my_token>& tokens);
