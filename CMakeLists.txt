@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+find_package(GTest REQUIRED)
+
 if(NOT EXISTS ${CMAKE_SOURCE_DIR}/lib/slang)
     message(FATAL_ERROR "Slang submodule not found! Run: git submodule update --init --recursive")
 endif()
@@ -38,6 +40,14 @@ target_link_libraries(my_project PRIVATE slang_slang)
 enable_testing()
 
 add_executable(run_tests ${CMAKE_SOURCE_DIR}/src/tests/tests.cpp)
+enable_testing()
+add_test(NAME run_all_tests COMMAND run_tests)
+
+target_link_libraries(run_tests PRIVATE 
+    GTest::gtest 
+    GTest::gtest_main
+    pthread 
+)
 
 target_include_directories(run_tests PRIVATE
     lib/slang/include

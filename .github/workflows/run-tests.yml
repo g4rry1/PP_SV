@@ -48,7 +48,6 @@ jobs:
         
     - name: List test files
       run: |
-        echo "📁 Test files structure:"
         find tests_files -name "*.sv" | head -20
         echo "Total .sv files: $(find tests_files -name "*.sv" | wc -l)"
         
