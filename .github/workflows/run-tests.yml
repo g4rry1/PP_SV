@@ -16,6 +16,22 @@ jobs:
       with:
         submodules: recursive
         
+    - name: Check project structure
+      run: |
+        echo "Current directory structure:"
+        ls -la
+        echo ""
+        echo "tests_files content:"
+        if [ -d "tests_files" ]; then
+          ls -la tests_files/
+          echo ""
+          echo "Subdirectories in tests_files:"
+          find tests_files -maxdepth 1 -type d
+        else
+          echo "ERROR: tests_files directory not found in root!"
+          exit 1
+        fi
+        
     - name: Install system dependencies
       run: |
         sudo apt-get update
@@ -63,7 +79,7 @@ jobs:
     - name: Run tests
       run: |
         cd build
-        ./run_tests
+        ./run_tests ../tests_files/
         
     - name: Upload test results
       if: always()
