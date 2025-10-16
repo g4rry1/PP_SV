@@ -16,11 +16,13 @@ using namespace slang::parsing;
 
 
 std::vector<my_token> all_tokens;
-std::vector<std::string> file_directives;
-int cur_derective = 0;
 
 
-std::vector<std::string> read_directives_from_original_file(const std::string& filename) {
+//std::vector<std::string> file_directives;
+//int cur_derective = 0;
+
+
+/*std::vector<std::string> read_directives_from_original_file(const std::string& filename) {
     std::vector<std::string> directives;
     std::ifstream file(filename);
     std::string line;
@@ -36,7 +38,7 @@ std::vector<std::string> read_directives_from_original_file(const std::string& f
         }
     }
     return directives;
-}
+}*/
 
 void find_tokens(SyntaxNode &root){  
 
@@ -59,11 +61,11 @@ void find_tokens(SyntaxNode &root){
                     all_tokens.push_back(trivia_token);
                 }
                 else if(list_of_trivia[j].kind == TriviaKind::Directive){
-                    my_token directive_token;
-                    directive_token.kind = TokenKind::Unknown;
-                    directive_token.text = file_directives[cur_derective];
-                    cur_derective++;
-                    all_tokens.push_back(directive_token);
+                    //my_token directive_token;
+                    //directive_token.kind = TokenKind::Unknown;
+                    //directive_token.text = file_directives[cur_derective];
+                    //cur_derective++;
+                    //all_tokens.push_back(directive_token);
                 }
             }
 
@@ -96,7 +98,7 @@ int main(int argc, char **argv){
 
     auto tree = driver.syntaxTrees.back();
 
-    file_directives = read_directives_from_original_file(argv[1]);
+    //file_directives = read_directives_from_original_file(argv[1]);
 
     find_tokens(tree->root());
 
