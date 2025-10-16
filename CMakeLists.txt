@@ -34,3 +34,18 @@ target_link_libraries(my_project PRIVATE slang_slang)
 # if(EXISTS ${CMAKE_SOURCE_DIR}/lib/prettyprint)
 #     target_link_libraries(my_project PRIVATE prettyprint)
 # endif()
+
+# enable_testing()
+
+# add_executable(run_tests tests/tests.cpp)  # предполагая, что tests.cpp в папке tests/
+
+# target_include_directories(run_tests PRIVATE
+#     lib/slang/include
+#     lib/slang/external
+# )
+
+# target_link_libraries(run_tests PRIVATE slang_slang)
+
+# add_test(NAME SystemTests COMMAND run_tests WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+# add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure)
