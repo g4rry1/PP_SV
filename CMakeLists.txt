@@ -46,7 +46,7 @@ add_test(NAME run_all_tests COMMAND run_tests)
 target_link_libraries(run_tests PRIVATE 
     GTest::gtest 
     GTest::gtest_main
-    pthread  # gtest часто требует pthread
+    pthread 
 )
 
 target_include_directories(run_tests PRIVATE
