@@ -1,0 +1,202 @@
+{
+  "design": {
+    "name": "$root",
+    "kind": "Root",
+    "addr": 4728826320000,
+    "members": [
+      {
+        "name": "",
+        "kind": "CompilationUnit",
+        "addr": 4728829584952
+      },
+      {
+        "name": "top",
+        "kind": "Instance",
+        "addr": 4728829585904,
+        "body": {
+          "name": "top",
+          "kind": "InstanceBody",
+          "addr": 4728829585248,
+          "members": [
+            {
+              "name": "q",
+              "kind": "Variable",
+              "addr": 4728829585504,
+              "type": "int$[$]",
+              "lifetime": "Static"
+            },
+            {
+              "name": "r",
+              "kind": "Variable",
+              "addr": 4728829585648,
+              "type": "int",
+              "lifetime": "Static"
+            },
+            {
+              "name": "",
+              "kind": "ProceduralBlock",
+              "addr": 4728829585792,
+              "procedureKind": "Initial",
+              "body": {
+                "kind": "Block",
+                "blockKind": "Sequential",
+                "body": {
+                  "kind": "List",
+                  "list": [
+                    {
+                      "kind": "ExpressionStatement",
+                      "expr": {
+                        "kind": "Call",
+                        "type": "void",
+                        "subroutine": "push_back",
+                        "arguments": [
+                          {
+                            "kind": "NamedValue",
+                            "type": "int$[$]",
+                            "symbol": "4728829585504 q"
+                          },
+                          {
+                            "kind": "IntegerLiteral",
+                            "type": "int",
+                            "value": "2"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "kind": "ExpressionStatement",
+                      "expr": {
+                        "kind": "Call",
+                        "type": "void",
+                        "subroutine": "push_back",
+                        "arguments": [
+                          {
+                            "kind": "NamedValue",
+                            "type": "int$[$]",
+                            "symbol": "4728829585504 q"
+                          },
+                          {
+                            "kind": "IntegerLiteral",
+                            "type": "int",
+                            "value": "3"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "kind": "ExpressionStatement",
+                      "expr": {
+                        "kind": "Call",
+                        "type": "void",
+                        "subroutine": "push_back",
+                        "arguments": [
+                          {
+                            "kind": "NamedValue",
+                            "type": "int$[$]",
+                            "symbol": "4728829585504 q"
+                          },
+                          {
+                            "kind": "IntegerLiteral",
+                            "type": "int",
+                            "value": "4"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "kind": "ExpressionStatement",
+                      "expr": {
+                        "kind": "Assignment",
+                        "type": "int",
+                        "left": {
+                          "kind": "NamedValue",
+                          "type": "int",
+                          "symbol": "4728829585648 r"
+                        },
+                        "right": {
+                          "kind": "Call",
+                          "type": "int",
+                          "subroutine": "pop_back",
+                          "arguments": [
+                            {
+                              "kind": "NamedValue",
+                              "type": "int$[$]",
+                              "symbol": "4728829585504 q"
+                            }
+                          ]
+                        },
+                        "isNonBlocking": false
+                      }
+                    },
+                    {
+                      "kind": "ExpressionStatement",
+                      "expr": {
+                        "kind": "Call",
+                        "type": "void",
+                        "subroutine": "$display",
+                        "arguments": [
+                          {
+                            "kind": "StringLiteral",
+                            "type": "bit[143:0]",
+                            "literal": ":assert: (%d == 2)"
+                          },
+                          {
+                            "kind": "Call",
+                            "type": "int",
+                            "subroutine": "size",
+                            "arguments": [
+                              {
+                                "kind": "NamedValue",
+                                "type": "int$[$]",
+                                "symbol": "4728829585504 q"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "kind": "ExpressionStatement",
+                      "expr": {
+                        "kind": "Call",
+                        "type": "void",
+                        "subroutine": "$display",
+                        "arguments": [
+                          {
+                            "kind": "StringLiteral",
+                            "type": "bit[143:0]",
+                            "literal": ":assert: (%d == 4)"
+                          },
+                          {
+                            "kind": "NamedValue",
+                            "type": "int",
+                            "symbol": "4728829585648 r"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "definition": "4728828224256 top"
+        },
+        "connections": [
+        ]
+      }
+    ]
+  },
+  "definitions": [
+    {
+      "name": "top",
+      "kind": "Definition",
+      "addr": 4728828224256,
+      "defaultNetType": "4728826318400 wire",
+      "definitionKind": "Module",
+      "defaultLifetime": "Static",
+      "unconnectedDrive": "None",
+      "cellDefine": false
+    }
+  ]
+}

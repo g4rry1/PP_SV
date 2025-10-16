@@ -22,15 +22,15 @@ std::vector<std::string> collect_sv_files(const std::string& test_dir) {
     return test_files;
 }
 
-// Функция, которая выполняет тест одного файла
+
 ::testing::AssertionResult RunPrettyPrinterTest(const std::string& file) {
     fs::path test_dir = "tests_files";
     fs::path relative_path = fs::relative(file, test_dir);
 
-    std::string output_file = "tests_files/result_of_test.sv";
+    std::string output_file = "intermediate_files/result_of_test.sv";
 
-    std::string command_3 = "~/pretty/slang/build/bin/slang --parse-only " + file + " > /dev/null 2>&1";
-    int result_test_file = std::system(command_3.c_str());
+    std::string parse_test_file = "bin/slang --parse-only " + file + " > /dev/null 2>&1";
+    int result_test_file = std::system(parse_test_file.c_str());
 
     if (result_test_file != 0) {
         //std::cout << "[  SKIPPED  ] Original file does not parse: "
@@ -38,22 +38,21 @@ std::vector<std::string> collect_sv_files(const std::string& test_dir) {
         return ::testing::AssertionSuccess();
     }
 
-    // 1. Запуск программы pretty-printer
-    std::string command_1 = "./build/my_project " + file + " > " + output_file;
-    int result1 = std::system(command_1.c_str());
+    
+    std::string pp = "./build/my_project " + file + " > " + output_file;
+    int result_of_pp = std::system(pp.c_str());
 
-    if (result1 != 0) {
+    if (result_of_pp != 0) {
         return ::testing::AssertionFailure()
                << "Program returned error for file: " << relative_path;
     }
 
-    // 2. Проверка, что результат парсится slang’ом
-    std::string command_2 =
-        "~/pretty/slang/build/bin/slang --parse-only " + output_file + " > /dev/null 2>&1";
-    int result_parsed = std::system(command_2.c_str());
+    
+    std::string parse_pp_file =
+        "bin/slang --parse-only " + output_file + " > /dev/null 2>&1";
+    int result_parsed = std::system(parse_pp_file.c_str());
 
     if (result_parsed != 0) {
-        // Проверим, может быть исходный тест-файл тоже не парсится
         if(!result_test_file){
             return ::testing::AssertionFailure()
                    << "Pretty printer output failed to parse for file: "
@@ -61,26 +60,55 @@ std::vector<std::string> collect_sv_files(const std::string& test_dir) {
         }
     }
 
+    std::string ast_test_file = "bin/slang --ast-json intermediate_files/orig_ast.json " + file + " > /dev/null 2>&1";
+    std::string ast_pp_file = "bin/slang --ast-json intermediate_files/pp_ast.json " + output_file + " > /dev/null 2>&1";
+    std::system(ast_test_file.c_str());
+    std::system(ast_pp_file.c_str());
+
+    auto size1 = fs::file_size("intermediate_files/orig_ast.json");
+    auto size2 = fs::file_size("intermediate_files/pp_ast.json");
+
+    if(size1 != size2){
+        return ::testing::AssertionFailure()
+        << "Incorrect AST after PP";
+    }
+
+    std::string second_formating = "./build/my_project " + output_file + " > " + "intermediate_files/second_format.sv";
+    int result_of_2_format = std::system(second_formating.c_str());
+
+    if (result_of_2_format != 0) {
+        return ::testing::AssertionFailure()
+               << "Program returned error for second_format";
+    }
+
+    std::string diff_check ="diff intermediate_files/second_format.sv " + output_file;
+    int result_of_diff = std::system(diff_check.c_str());
+
+    if(result_of_diff != 0){
+        return ::testing::AssertionFailure()
+               << "second format != first format";
+    }
+
     return ::testing::AssertionSuccess();
 }
 
-// ----------- ТЕСТЫ ------------
 
-// Мы создаем параметризованный тест, чтобы каждый .sv файл стал отдельным тестом
+
+
 class PrettyPrinterTest : public ::testing::TestWithParam<std::string> {};
 
 TEST_P(PrettyPrinterTest, SystemVerilogParsing) {
     EXPECT_TRUE(RunPrettyPrinterTest(GetParam()));
 }
 
-// Генерация тестов
+
 INSTANTIATE_TEST_SUITE_P(
     AllSVTests,
     PrettyPrinterTest,
     ::testing::ValuesIn(collect_sv_files("tests_files"))
 );
 
-// Главная функция
+
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     try {

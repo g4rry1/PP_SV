@@ -1,3 +1,14 @@
+
+
+
+/* slang throws out all constructions starting with ` from cst at the preprocessing stage,
+ we need to figure out how to handle them differently for the formatter*/
+
+/*Although Slang stores places where structures with ` once existed,
+ it still does not preserve this for everyone.*/
+
+
+
 #include "PP_SV.h"
 #include <slang/driver/Driver.h>
 #include <slang/syntax/SyntaxPrinter.h>
@@ -54,7 +65,8 @@ void find_tokens(SyntaxNode &root){
             auto count_of_trivia = list_of_trivia.size();
 
             for(size_t j = 0; j < count_of_trivia; j++){
-                if(list_of_trivia[j].kind == TriviaKind::LineComment){
+                if(list_of_trivia[j].kind == TriviaKind::LineComment
+                    || list_of_trivia[j].kind == TriviaKind::BlockComment){
                     my_token trivia_token;
                     trivia_token.kind = TokenKind::Unknown;
                     trivia_token.text = list_of_trivia[j].getRawText();

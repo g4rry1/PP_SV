@@ -5,6 +5,13 @@
 // https://opensource.org/licenses/ISC
 //
 // SPDX-License-Identifier: ISC
+/*
+:name: pop_back
+:description: Test queues pop_back function support
+:tags: 7.10.2.5 7.10.2
+:type: simulation elaboration parsing
+:unsynthesizable: 1
+*/
 
  module  top  ();
 	 int  q [$];
