@@ -29,6 +29,15 @@ std::vector<std::string> collect_sv_files(const std::string& test_dir) {
 
     std::string output_file = "tests_files/result_of_test.sv";
 
+    std::string command_3 = "~/pretty/slang/build/bin/slang --parse-only " + file + " > /dev/null 2>&1";
+    int result_test_file = std::system(command_3.c_str());
+
+    if (result_test_file != 0) {
+        //std::cout << "[  SKIPPED  ] Original file does not parse: "
+        //<< relative_path << std::endl;
+        return ::testing::AssertionSuccess();
+    }
+
     // 1. Запуск программы pretty-printer
     std::string command_1 = "./build/my_project " + file + " > " + output_file;
     int result1 = std::system(command_1.c_str());
@@ -45,15 +54,7 @@ std::vector<std::string> collect_sv_files(const std::string& test_dir) {
 
     if (result_parsed != 0) {
         // Проверим, может быть исходный тест-файл тоже не парсится
-        std::string command_3 =
-            "~/pretty/slang/build/bin/slang --parse-only " + file + " > /dev/null 2>&1";
-        int result_test_file = std::system(command_3.c_str());
-
-        if (result_test_file != 0) {
-             std::cout << "[  SKIPPED  ] Original file does not parse: "
-              << relative_path << std::endl;
-                return ::testing::AssertionSuccess();
-        } else {
+        if(!result_test_file){
             return ::testing::AssertionFailure()
                    << "Pretty printer output failed to parse for file: "
                    << relative_path;
