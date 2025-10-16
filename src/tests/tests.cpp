@@ -34,6 +34,7 @@ int main() {
     
     int passed = 0;
     int failed = 0;
+    int parsing_test_file_error = 0;
     
     for (const auto& file : test_files) {
         fs::path relative_path = fs::relative(file, test_dir);
@@ -56,10 +57,15 @@ int main() {
             //std::cout << "✅ PASSED" << std::endl;
             passed++;
         } else {
-            //std::cout << "❌ FAILED: slang parsing failed" << std::endl;
-            //std::cout << "Testing: " << relative_path.string() << std::endl;
-            failed++;
-            //std::cout << "------------------------" << std::endl;
+            std::string command_3 = "~/pretty/slang/build/bin/slang --parse-only " + file;
+            int result_of_parsing_test_file = std::system(command_1.c_str());
+            if(result_of_parsing_test_file){
+                std::cout << "❌ FAILED: slang parsing failed" << std::endl;
+                std::cout << "Testing: " << relative_path.string() << std::endl;
+                failed++;
+                std::cout << "------------------------" << std::endl;
+            }
+            else parsing_test_file_error++;
         }
     }
     
@@ -67,6 +73,7 @@ int main() {
     std::cout << "Total files: " << test_files.size() << std::endl;
     std::cout << "Passed: " << passed << std::endl;
     std::cout << "Failed: " << failed << std::endl;
+    std::cout << "Failed parcing test file: " << parsing_test_file_error << std::endl;
     std::cout << "Success rate: " << (passed * 100 / test_files.size()) << "%" << std::endl;
     
     return failed == 0 ? 0 : 1;

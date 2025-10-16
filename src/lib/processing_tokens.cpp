@@ -10,7 +10,7 @@ using namespace slang::parsing;
 static std::unordered_map<TokenKind, format_rule> rule_table = {
     {TokenKind::Unknown, {false, true, false, false, false, false}},
     {TokenKind::EndOfFile, {false, false, false, false, false, false}},
-    {TokenKind::Identifier, {false, false, false, false, false, false}},
+    {TokenKind::Identifier, {false, false, true, true, false, false}},
     {TokenKind::SystemIdentifier, {false, false, false, false, false, false}},
     {TokenKind::StringLiteral, {false, false, false, false, false, false}},
     {TokenKind::IntegerLiteral, {false, false, false, false, false, false}},
