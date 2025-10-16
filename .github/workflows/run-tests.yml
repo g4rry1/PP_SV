@@ -1,65 +1,65 @@
-name: CI Tests
+name: Run Tests
 
 on:
   push:
-    branches: [ main, master, develop, feature/* ]
+    branches: [ main, master, develop ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, master, develop ]
 
 jobs:
-  build-and-test:
-    name: Build and Test (${{ matrix.build-type }})
+  test:
+    name: Build and Run Tests
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        build-type: [Debug, Release]
     
     steps:
-    - name: Checkout repository
+    - name: Checkout code
       uses: actions/checkout@v4
       with:
         submodules: recursive
-        token: ${{ secrets.GITHUB_TOKEN }}
         
-    - name: Install system dependencies
+    - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y \
-          cmake \
           build-essential \
+          cmake \
           libgtest-dev \
           googletest \
-          google-mock \
-          pkg-config
-          
+          google-mock
+        
     - name: Configure CMake
       run: |
-        mkdir -p build/${{ matrix.build-type }}
-        cd build/${{ matrix.build-type }}
-        cmake ../.. -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
+        mkdir -p build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release
         
     - name: Build project
       run: |
-        cd build/${{ matrix.build-type }}
-        make -j$(nproc)
+        cd build
+        make -j4
         
-    - name: Test
+    - name: Prepare test environment
       run: |
-        cd build/${{ matrix.build-type }}
-        ctest --verbose --output-on-failure
+        # Копируем ВСЁ нужное в build директорию
+        cd build
+        # Копируем тестовые файлы
+        cp -r ../src/tests/tests_files .
+        # Копируем исполняемые файлы если нужно
+        cp my_project . || echo "my_project already in place"
+        # Копируем slang
+        cp lib/slang/build/bin/slang . 2>/dev/null || echo "Slang not found in expected location"
         
-    - name: Run custom test executable
+    - name: Install slang if needed
       run: |
-        cd build/${{ matrix.build-type }}
-        if [ -f "./run_tests" ]; then
-          ./run_tests --gtest_output="xml:test_results.xml"
+        cd build
+        if [ ! -f "./slang" ]; then
+          echo "Installing system slang"
+          sudo apt-get install -y slang
+        else
+          echo "Using bundled slang"
         fi
         
-    - name: Upload test results
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: test-results-${{ matrix.build-type }}
-        path: |
-          build/${{ matrix.build-type }}/test_results.xml
-          build/${{ matrix.build-type }}/Testing/**/*.xml
+    - name: Run tests
+      run: |
+        cd build
+        ./run_tests
