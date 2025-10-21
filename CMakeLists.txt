@@ -19,6 +19,14 @@ endif()
 
 add_executable(my_project src/lib/main.cpp src/lib/processing_tokens.cpp)
 
+target_compile_options(my_project PRIVATE
+    -Wall
+    -Wextra
+    -Wpedantic
+    -Werror
+    -g
+)
+
 target_include_directories(my_project PRIVATE
     lib/slang/include
     lib/slang/external

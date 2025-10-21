@@ -24,26 +24,6 @@ using namespace slang::parsing;
 
 std::vector<my_token> all_tokens;
 
-// std::vector<std::string> file_directives;
-// int cur_derective = 0;
-
-/*std::vector<std::string> read_directives_from_original_file(const std::string& filename) {
-    std::vector<std::string> directives;
-    std::ifstream file(filename);
-    std::string line;
-    std::regex directive_pattern(R"(^\s*`\w+.*)");
-
-    while (std::getline(file, line)) {
-        if (std::regex_match(line, directive_pattern)) {
-            // Убираем начальные пробелы
-            size_t start = line.find('`');
-            if (start != std::string::npos) {
-                directives.push_back(line.substr(start));
-            }
-        }
-    }
-    return directives;
-}*/
 
 void find_tokens(SyntaxNode& root) {
 
@@ -59,19 +39,35 @@ void find_tokens(SyntaxNode& root) {
             auto count_of_trivia = list_of_trivia.size();
 
             for (size_t j = 0; j < count_of_trivia; j++) {
-                if (list_of_trivia[j].kind == TriviaKind::LineComment ||
-                    list_of_trivia[j].kind == TriviaKind::BlockComment) {
+                auto trivia = list_of_trivia[j];
+                if (trivia.kind == TriviaKind::LineComment ||
+                    trivia.kind == TriviaKind::BlockComment) {
                     my_token trivia_token;
                     trivia_token.kind = TokenKind::Unknown;
-                    trivia_token.text = list_of_trivia[j].getRawText();
+                    trivia_token.text = trivia.getRawText();
                     all_tokens.push_back(trivia_token);
                 }
-                else if (list_of_trivia[j].kind == TriviaKind::Directive) {
-                    // my_token directive_token;
-                    // directive_token.kind = TokenKind::Unknown;
-                    // directive_token.text = file_directives[cur_derective];
-                    // cur_derective++;
-                    // all_tokens.push_back(directive_token);
+                if(trivia.kind == TriviaKind::Directive) {
+                    auto& syntax = *trivia.syntax();
+                    find_tokens(syntax);
+                }
+                if(trivia.kind == TriviaKind::SkippedSyntax){
+                    find_tokens(*trivia.syntax());
+                }
+                if(trivia.kind == TriviaKind::SkippedTokens){
+                        
+                    for (Token t : trivia.getSkippedTokens()){
+                        my_token new_t;
+                        new_t.kind = t.kind;
+                        new_t.text = t.rawText();
+                        all_tokens.push_back(new_t);
+                    }
+                }
+                if(trivia.kind == TriviaKind::DisabledText){
+                    my_token trivia_tok;
+                    trivia_tok.kind = TokenKind::Unknown;
+                    trivia_tok.text = trivia.getRawText();
+                    all_tokens.push_back(trivia_tok);
                 }
             }
 
@@ -103,9 +99,11 @@ int main(int argc, char** argv) {
 
     auto tree = driver.syntaxTrees.back();
 
-    // file_directives = read_directives_from_original_file(argv[1]);
 
     find_tokens(tree->root());
+    //for(size_t i = 0; i < all_tokens.size(); i++){
+        //std::cout << all_tokens[i].kind << " " << all_tokens[i].text << "\n";
+    //}
 
     if (int a = format_tokens(all_tokens)) {
         std::cerr << "openBlocks more than closeBlocks " << a << '\n';

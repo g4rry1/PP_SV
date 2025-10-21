@@ -31,7 +31,7 @@ static std::unordered_map<TokenKind, format_rule> rule_table = {
     {TokenKind::ColonEquals, {false, false, true, true, false, false}},
     {TokenKind::ColonSlash, {false, false, false, false, false, false}},
     {TokenKind::DoubleColon, {false, false, false, false, false, false}},
-    {TokenKind::Comma, {false, true, false, true, false, false}},
+    {TokenKind::Comma, {false, false, false, true, false, false}},
     {TokenKind::Dot, {false, false, false, false, false, false}},
     {TokenKind::Slash, {false, false, true, true, false, false}},
     {TokenKind::Star, {false, false, false, false, false, false}},
@@ -353,7 +353,7 @@ static std::unordered_map<TokenKind, format_rule> rule_table = {
 
     {TokenKind::UnitSystemName, {false, false, false, false, false, false}},
     {TokenKind::RootSystemName, {false, false, false, false, false, false}},
-    {TokenKind::Directive, {false, false, false, false, false, false}},
+    {TokenKind::Directive, {true, false, false, true, false, false}},
     {TokenKind::IncludeFileName, {false, false, false, false, false, false}},
     {TokenKind::MacroUsage, {false, false, false, false, false, false}},
     {TokenKind::MacroQuote, {false, false, false, false, false, false}},
@@ -460,6 +460,10 @@ int format_tokens(vector<my_token>& tokens) {
         }
         if (tok.kind == TokenKind::PropertyKeyword && tokens[i + 1].kind != TokenKind::Identifier) {
             currentIndent--;
+        }
+
+        if(i>0 && tok.kind == TokenKind::Identifier && tokens[i - 1].text == "`ifndef"){
+            item.newlineAfter = true;
         }
 
         // Конец особых случаев
