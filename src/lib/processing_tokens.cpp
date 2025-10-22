@@ -7,8 +7,8 @@ using namespace slang::syntax;
 using namespace slang::parsing;
 
 static std::unordered_map<TokenKind, format_rule> rule_table = {
-    {TokenKind::Unknown, {false, true, false, false, false, false}},
-    {TokenKind::EndOfFile, {false, false, false, false, false, false}},
+    {TokenKind::Unknown, {false, false, true, true, false, false}},
+    {TokenKind::EndOfFile, {false, true, false, false, false, false}},
     {TokenKind::Identifier, {false, false, true, true, false, false}},
     {TokenKind::SystemIdentifier, {false, false, false, false, false, false}},
     {TokenKind::StringLiteral, {false, false, false, false, false, false}},
@@ -402,6 +402,7 @@ int format_tokens(vector<my_token>& tokens) {
             item.newlineAfter = true;
         if (rule_cur.newlineBefore)
             item.newlineBefore = true;
+
 
         // Особые случаи
         if (disable_or_wait_flag) {

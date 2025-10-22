@@ -55,7 +55,7 @@ void find_tokens(SyntaxNode& root, slang::SourceManager &sm) {
                 if (trivia.kind == TriviaKind::LineComment ||
                     trivia.kind == TriviaKind::BlockComment) {
                     my_token trivia_token;
-                    trivia_token.kind = TokenKind::Unknown;
+                    trivia_token.kind = TokenKind::EndOfFile;
                     trivia_token.text = trivia.getRawText();
                     all_tokens.push_back(trivia_token);
                 }
