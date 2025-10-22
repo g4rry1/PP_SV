@@ -25,7 +25,7 @@ using namespace slang::parsing;
 std::vector<my_token> all_tokens;
 
 
-void find_tokens(SyntaxNode& root) {
+void find_tokens(SyntaxNode& root, slang::SourceManager &sm) {
 
     slang::size_t count_child = root.getChildCount();
 
@@ -34,9 +34,12 @@ void find_tokens(SyntaxNode& root) {
 
 
         if (auto childNode = root.childNode(i); childNode) {
-            find_tokens(*childNode);
+            find_tokens(*childNode, sm);
         }
         else if (auto token = root.childToken(i); token) {
+            if(sm.isIncludedFileLoc(token.location())){
+                continue;
+            }
 
             auto list_of_trivia = token.trivia();
             auto count_of_trivia = list_of_trivia.size();
@@ -52,11 +55,11 @@ void find_tokens(SyntaxNode& root) {
                 }
                 if(trivia.kind == TriviaKind::Directive) {
                     auto& syntax = *trivia.syntax();
-                    find_tokens(syntax);
+                    find_tokens(syntax, sm);
                     if(syntax.kind == SyntaxKind::MacroUsage) flag_of_macro = true;
                 }
                 if(trivia.kind == TriviaKind::SkippedSyntax){
-                    find_tokens(*trivia.syntax());
+                    find_tokens(*trivia.syntax(), sm);
                 }
                 if(trivia.kind == TriviaKind::SkippedTokens){
                         
@@ -93,6 +96,7 @@ void find_tokens(SyntaxNode& root) {
 int main(int argc, char** argv) {
     slang::driver::Driver driver;
     driver.addStandardArgs();
+    auto &sm = driver.sourceManager;
     if (!driver.parseCommandLine(argc, argv)) {
         return 1;
     }
@@ -110,7 +114,7 @@ int main(int argc, char** argv) {
     auto tree = driver.syntaxTrees.back();
 
 
-    find_tokens(tree->root());
+    find_tokens(tree->root(), sm);
     //for(size_t i = 0; i < all_tokens.size(); i++){
         //std::cout << all_tokens[i].kind << " " << all_tokens[i].text << "\n";
     //}
