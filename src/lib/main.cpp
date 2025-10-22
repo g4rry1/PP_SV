@@ -35,6 +35,12 @@ void find_tokens(SyntaxNode& root, slang::SourceManager &sm) {
 
         if (auto childNode = root.childNode(i); childNode) {
             find_tokens(*childNode, sm);
+            if(root.kind == SyntaxKind::PragmaDirective){
+                my_token new_line_tok;
+                new_line_tok.kind = TokenKind::Unknown;
+                new_line_tok.text = '\n';
+                all_tokens.push_back(new_line_tok);
+            }
         }
         else if (auto token = root.childToken(i); token) {
             if(sm.isIncludedFileLoc(token.location())){
@@ -78,10 +84,14 @@ void find_tokens(SyntaxNode& root, slang::SourceManager &sm) {
                 }
             }
 
-
             if(!flag_of_macro){
                 my_token new_token;
-                new_token.kind = token.kind;
+                if(root.kind == SyntaxKind::SimplePragmaExpression){
+                    new_token.kind = TokenKind::Unknown;
+                }
+                else{
+                    new_token.kind = token.kind;
+                }
                 new_token.text = token.rawText();
                 all_tokens.push_back(new_token);
             }

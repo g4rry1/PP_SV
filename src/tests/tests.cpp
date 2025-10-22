@@ -27,7 +27,9 @@ std::vector<std::string> collect_sv_files(const std::string& test_dir) {
     fs::path test_dir = "tests_files";
     fs::path relative_path = fs::relative(file, test_dir);
 
-    std::string output_file = "tests_files" / relative_path.parent_path() / "result_of_test.sv";
+    std::string result_of_test = std::string(relative_path.string().size() - relative_path.parent_path().string().size() - 4,'a') + ".sv";
+
+    std::string output_file = "tests_files" / relative_path.parent_path() / result_of_test;
     std::ofstream new_output_file(output_file);
     new_output_file.close();
 
@@ -38,6 +40,7 @@ std::vector<std::string> collect_sv_files(const std::string& test_dir) {
     if (result_test_file != 0) {
         // std::cout << "[  SKIPPED  ] Original file does not parse: "
         //<< relative_path << std::endl;
+        std::filesystem::remove(output_file);
         return ::testing::AssertionSuccess();
     }
 
@@ -45,6 +48,7 @@ std::vector<std::string> collect_sv_files(const std::string& test_dir) {
     int result_of_pp = std::system(pp.c_str());
 
     if (result_of_pp != 0) {
+        std::filesystem::remove(output_file);
         return ::testing::AssertionFailure()
                << "Program returned error for file: " << relative_path;
     }
@@ -54,6 +58,7 @@ std::vector<std::string> collect_sv_files(const std::string& test_dir) {
 
     if (result_parsed != 0) {
         if (!result_test_file) {
+            std::filesystem::remove(output_file);
             return ::testing::AssertionFailure()
                    << "Pretty printer output failed to parse for file: " << relative_path;
         }
@@ -70,7 +75,8 @@ std::vector<std::string> collect_sv_files(const std::string& test_dir) {
     auto size2 = fs::file_size("intermediate_files/pp_ast.json");
 
     if (size1 != size2) {
-        return ::testing::AssertionFailure() << "Incorrect AST after PP";
+        std::filesystem::remove(output_file);
+        return ::testing::AssertionFailure() << "Incorrect AST after PP ";
     }
 
     std::string second_formating = "./build/my_project " + output_file + " > " +
@@ -78,6 +84,7 @@ std::vector<std::string> collect_sv_files(const std::string& test_dir) {
     int result_of_2_format = std::system(second_formating.c_str());
 
     if (result_of_2_format != 0) {
+        std::filesystem::remove(output_file);
         return ::testing::AssertionFailure() << "Program returned error for second_format";
     }
 
@@ -85,6 +92,7 @@ std::vector<std::string> collect_sv_files(const std::string& test_dir) {
     int result_of_diff = std::system(diff_check.c_str());
 
     if (result_of_diff != 0) {
+        std::filesystem::remove(output_file);
         return ::testing::AssertionFailure() << "second format != first format";
     }
 
