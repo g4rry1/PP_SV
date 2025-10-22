@@ -30,6 +30,9 @@ void find_tokens(SyntaxNode& root) {
     slang::size_t count_child = root.getChildCount();
 
     for (slang::size_t i = 0; i < count_child; i++) {
+        bool flag_of_macro = false;
+
+
         if (auto childNode = root.childNode(i); childNode) {
             find_tokens(*childNode);
         }
@@ -50,6 +53,7 @@ void find_tokens(SyntaxNode& root) {
                 if(trivia.kind == TriviaKind::Directive) {
                     auto& syntax = *trivia.syntax();
                     find_tokens(syntax);
+                    if(syntax.kind == SyntaxKind::MacroUsage) flag_of_macro = true;
                 }
                 if(trivia.kind == TriviaKind::SkippedSyntax){
                     find_tokens(*trivia.syntax());
@@ -71,10 +75,16 @@ void find_tokens(SyntaxNode& root) {
                 }
             }
 
-            my_token new_token;
-            new_token.kind = token.kind;
-            new_token.text = token.rawText();
-            all_tokens.push_back(new_token);
+
+            if(!flag_of_macro){
+                my_token new_token;
+                new_token.kind = token.kind;
+                new_token.text = token.rawText();
+                all_tokens.push_back(new_token);
+            }
+            else{
+                flag_of_macro = false;
+            }
         }
     }
     return;

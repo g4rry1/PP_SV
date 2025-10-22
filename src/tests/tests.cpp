@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
 #include <gtest/gtest.h>
 #include <iostream>
 #include <string>
@@ -26,7 +27,10 @@ std::vector<std::string> collect_sv_files(const std::string& test_dir) {
     fs::path test_dir = "tests_files";
     fs::path relative_path = fs::relative(file, test_dir);
 
-    std::string output_file = "intermediate_files/result_of_test.sv";
+    std::string output_file = "tests_files" / relative_path.parent_path() / "result_of_test.sv";
+    std::ofstream new_output_file(output_file);
+    new_output_file.close();
+
 
     std::string parse_test_file = "slang_bin/slang --parse-only " + file + " > /dev/null 2>&1";
     int result_test_file = std::system(parse_test_file.c_str());
@@ -84,6 +88,7 @@ std::vector<std::string> collect_sv_files(const std::string& test_dir) {
         return ::testing::AssertionFailure() << "second format != first format";
     }
 
+    std::filesystem::remove(output_file);
     return ::testing::AssertionSuccess();
 }
 
