@@ -27,7 +27,7 @@ std::vector<my_token> all_tokens;
 void find_tokens(SyntaxNode& root, slang::SourceManager &sm);
 
 
-void print_trivia(slang::parsing::Trivia trivia, bool &flag_of_macro, slang::SourceManager &sm){
+void print_trivia(slang::parsing::Trivia trivia, slang::SourceManager &sm){
     if (trivia.kind == TriviaKind::LineComment ||
                     trivia.kind == TriviaKind::BlockComment) {
                     my_token trivia_token;
@@ -38,7 +38,6 @@ void print_trivia(slang::parsing::Trivia trivia, bool &flag_of_macro, slang::Sou
                 if(trivia.kind == TriviaKind::Directive) {
                     auto& syntax = *trivia.syntax();
                     find_tokens(syntax, sm);
-                    if(syntax.kind == SyntaxKind::MacroUsage) flag_of_macro = true;
                 }
                 if(trivia.kind == TriviaKind::SkippedSyntax){
                     find_tokens(*trivia.syntax(), sm);
@@ -66,7 +65,6 @@ void find_tokens(SyntaxNode& root, slang::SourceManager &sm) {
     slang::size_t count_child = root.getChildCount();
 
     for (slang::size_t i = 0; i < count_child; i++) {
-        bool flag_of_macro = false;
 
 
         if (auto childNode = root.childNode(i); childNode) {
@@ -79,9 +77,6 @@ void find_tokens(SyntaxNode& root, slang::SourceManager &sm) {
             }
         }
         else if (auto token = root.childToken(i); token) {
-            if(sm.isIncludedFileLoc(token.location())){
-                continue;
-            }
 
             SmallVector<const Trivia*> pending;
             for (const auto& trivia : token.trivia()) {
@@ -90,36 +85,37 @@ void find_tokens(SyntaxNode& root, slang::SourceManager &sm) {
                 if (loc) {
                     if (!sm.isIncludedFileLoc(*loc)) {
                         for (auto t : pending)
-                            print_trivia(*t, flag_of_macro,sm);
+                            print_trivia(*t,sm);
                     }
                     else {
                         if (trivia.kind == TriviaKind::Directive ||
                             trivia.kind == TriviaKind::SkippedSyntax ||
                             trivia.kind == TriviaKind::SkippedTokens) {
-                            print_trivia(trivia, flag_of_macro,sm);
+                            print_trivia(trivia,sm);
                         }
                     }
                     pending.clear();
                 }
             }
 
-            for (auto t : pending)
-                print_trivia(*t,flag_of_macro,sm);
+            for (auto t : pending){
+                print_trivia(*t,sm);
+            }
 
-            if(!flag_of_macro){
-                my_token new_token;
-                if(root.kind == SyntaxKind::SimplePragmaExpression){
-                    new_token.kind = TokenKind::Unknown;
-                }
-                else{
-                    new_token.kind = token.kind;
-                }
-                new_token.text = token.rawText();
-                all_tokens.push_back(new_token);
+
+            if(sm.isIncludedFileLoc(token.location()) || sm.isMacroLoc(token.location())){
+                continue;
+            }
+            my_token new_token;
+            if(root.kind == SyntaxKind::SimplePragmaExpression){
+                new_token.kind = TokenKind::Unknown;
             }
             else{
-                flag_of_macro = false;
+                new_token.kind = token.kind;
             }
+            new_token.text = token.rawText();
+            all_tokens.push_back(new_token);
+            
         }
     }
     return;
