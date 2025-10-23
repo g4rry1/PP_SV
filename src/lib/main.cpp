@@ -77,6 +77,9 @@ void find_tokens(SyntaxNode& root, slang::SourceManager &sm) {
             }
         }
         else if (auto token = root.childToken(i); token) {
+            if(sm.isIncludedFileLoc(token.location())){
+                continue;
+            }
 
             SmallVector<const Trivia*> pending;
             for (const auto& trivia : token.trivia()) {
@@ -103,11 +106,13 @@ void find_tokens(SyntaxNode& root, slang::SourceManager &sm) {
             }
 
 
-            if(sm.isIncludedFileLoc(token.location()) || sm.isMacroLoc(token.location())){
+            if(sm.isMacroLoc(token.location())){
                 continue;
             }
+
             my_token new_token;
-            if(root.kind == SyntaxKind::SimplePragmaExpression){
+            if(root.kind == SyntaxKind::SimplePragmaExpression ||
+            (root.parent != NULL && root.parent->kind == SyntaxKind::DefineDirective) ){
                 new_token.kind = TokenKind::Unknown;
             }
             else{
