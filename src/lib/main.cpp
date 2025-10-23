@@ -24,35 +24,11 @@ using namespace slang::parsing;
 
 std::vector<my_token> all_tokens;
 
-
-void find_tokens(SyntaxNode& root, slang::SourceManager &sm) {
-
-    slang::size_t count_child = root.getChildCount();
-
-    for (slang::size_t i = 0; i < count_child; i++) {
-        bool flag_of_macro = false;
+void find_tokens(SyntaxNode& root, slang::SourceManager &sm);
 
 
-        if (auto childNode = root.childNode(i); childNode) {
-            find_tokens(*childNode, sm);
-            if(root.kind == SyntaxKind::PragmaDirective){
-                my_token new_line_tok;
-                new_line_tok.kind = TokenKind::Unknown;
-                new_line_tok.text = '\n';
-                all_tokens.push_back(new_line_tok);
-            }
-        }
-        else if (auto token = root.childToken(i); token) {
-            if(sm.isIncludedFileLoc(token.location())){
-                continue;
-            }
-
-            auto list_of_trivia = token.trivia();
-            auto count_of_trivia = list_of_trivia.size();
-
-            for (size_t j = 0; j < count_of_trivia; j++) {
-                auto trivia = list_of_trivia[j];
-                if (trivia.kind == TriviaKind::LineComment ||
+void print_trivia(slang::parsing::Trivia trivia, bool &flag_of_macro, slang::SourceManager &sm){
+    if (trivia.kind == TriviaKind::LineComment ||
                     trivia.kind == TriviaKind::BlockComment) {
                     my_token trivia_token;
                     trivia_token.kind = TokenKind::EndOfFile;
@@ -82,7 +58,53 @@ void find_tokens(SyntaxNode& root, slang::SourceManager &sm) {
                     trivia_tok.text = trivia.getRawText();
                     all_tokens.push_back(trivia_tok);
                 }
+}
+
+
+void find_tokens(SyntaxNode& root, slang::SourceManager &sm) {
+
+    slang::size_t count_child = root.getChildCount();
+
+    for (slang::size_t i = 0; i < count_child; i++) {
+        bool flag_of_macro = false;
+
+
+        if (auto childNode = root.childNode(i); childNode) {
+            find_tokens(*childNode, sm);
+            if(root.kind == SyntaxKind::PragmaDirective){
+                my_token new_line_tok;
+                new_line_tok.kind = TokenKind::Unknown;
+                new_line_tok.text = '\n';
+                all_tokens.push_back(new_line_tok);
             }
+        }
+        else if (auto token = root.childToken(i); token) {
+            if(sm.isIncludedFileLoc(token.location())){
+                continue;
+            }
+
+            SmallVector<const Trivia*> pending;
+            for (const auto& trivia : token.trivia()) {
+                pending.push_back(&trivia);
+                auto loc = trivia.getExplicitLocation();
+                if (loc) {
+                    if (!sm.isIncludedFileLoc(*loc)) {
+                        for (auto t : pending)
+                            print_trivia(*t, flag_of_macro,sm);
+                    }
+                    else {
+                        if (trivia.kind == TriviaKind::Directive ||
+                            trivia.kind == TriviaKind::SkippedSyntax ||
+                            trivia.kind == TriviaKind::SkippedTokens) {
+                            print_trivia(trivia, flag_of_macro,sm);
+                        }
+                    }
+                    pending.clear();
+                }
+            }
+
+            for (auto t : pending)
+                print_trivia(*t,flag_of_macro,sm);
 
             if(!flag_of_macro){
                 my_token new_token;
