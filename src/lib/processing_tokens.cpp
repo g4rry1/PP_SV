@@ -366,6 +366,7 @@ static std::unordered_map<TokenKind, format_rule> rule_table = {
 int format_tokens(vector<my_token>& tokens) {
     vector<layout_item> layout;
     int currentIndent = 0;
+    bool flag_of_first_MacroQuote = false;
 
     bool next_blockStart_valid = true;
 
@@ -465,6 +466,29 @@ int format_tokens(vector<my_token>& tokens) {
 
         if(i>0 && tok.kind == TokenKind::Identifier && tokens[i - 1].text == "`ifndef"){
             item.newlineAfter = true;
+        }
+        if(i>0 && tok.kind == TokenKind::OpenParenthesis && (tokens[i-1].kind == TokenKind::Identifier
+        || tokens[i-1].kind == TokenKind::Directive || tokens[i-1].kind == TokenKind::MacroUsage)){
+            item.spaceBefore = false;
+        }
+        if((tok.kind == TokenKind::Identifier || tok.kind == TokenKind::Directive 
+            || tok.kind == TokenKind::MacroUsage)
+        &&  tokens[i+1].kind == TokenKind::OpenParenthesis){
+            item.spaceAfter = false;
+        }
+        if(i>0 && tokens[i-1].kind == TokenKind::MacroPaste) item.spaceBefore = false;
+        if(tokens.size() > i+1 && tokens[i+1].kind == TokenKind::MacroPaste) item.spaceAfter = false;
+
+        if(tok.kind == TokenKind::MacroQuote){
+            if(!flag_of_first_MacroQuote){
+                item.spaceBefore = true;
+                flag_of_first_MacroQuote = true;
+            }
+            else flag_of_first_MacroQuote = false;
+        }
+         if(i>0 && tok.kind == TokenKind::Identifier && tokens[i-1].kind == TokenKind::MacroQuote ){
+            item.spaceAfter = false;
+            item.spaceBefore = false;
         }
 
         // Конец особых случаев

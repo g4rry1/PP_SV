@@ -111,9 +111,16 @@ void find_tokens(SyntaxNode& root, slang::SourceManager &sm) {
             }
 
             my_token new_token;
-            if(root.kind == SyntaxKind::SimplePragmaExpression ||
-            (root.parent != NULL && root.parent->kind == SyntaxKind::DefineDirective) ){
+            if(root.kind == SyntaxKind::SimplePragmaExpression 
+            || (root.parent != NULL && root.parent->kind == SyntaxKind::DefineDirective 
+                && token.rawText() == "initial")){
                 new_token.kind = TokenKind::Unknown;
+            }
+            else if(root.kind == SyntaxKind::MacroUsage){
+                new_token.kind = TokenKind::MacroUsage;
+            }
+            else if(root.parent != NULL && root.parent->kind == SyntaxKind::MacroActualArgument){
+                new_token.kind = TokenKind::StringLiteral;
             }
             else{
                 new_token.kind = token.kind;

@@ -58,9 +58,10 @@ std::vector<std::string> collect_sv_files(const std::string& test_dir) {
 
     if (result_parsed != 0) {
         if (!result_test_file) {
+            std::system(("cat " + output_file).c_str());
             std::filesystem::remove(output_file);
             return ::testing::AssertionFailure()
-                   << "Pretty printer output failed to parse for file: " << relative_path;
+                   << "\nPretty printer output failed to parse for file: " << relative_path;
         }
     }
 
