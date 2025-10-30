@@ -13,20 +13,19 @@
 :unsynthesizable: 1
 */
 
- module  top  ();
+ module  top();
 	 int  q [$];
 	 int  r ;
 	
 	 initial  begin
-	 q . push_back  (2);
-		 q . push_back  (3);
-		 q . push_back  (4);
+	 q . push_back(2);
+		 q . push_back(3);
+		 q . push_back(4);
 		 r  =  q . pop_back ;
-		$display (":assert: (%d == 2)", 
-		 q . size );
-		$display (":assert: (%d == 4)", 
-		 r );
+		$display (":assert: (%d == 2)",  q . size );
+		$display (":assert: (%d == 4)",  r );
 		
 	 end
 	
  endmodule
+

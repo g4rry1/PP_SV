@@ -2,40 +2,40 @@
   "design": {
     "name": "$root",
     "kind": "Root",
-    "addr": 5793911100640,
+    "addr": 2389109331040,
     "members": [
       {
         "name": "",
         "kind": "CompilationUnit",
-        "addr": 5793914365496
+        "addr": 2389112596024
       },
       {
         "name": "top",
         "kind": "Instance",
-        "addr": 5793914366448,
+        "addr": 2389112596976,
         "body": {
           "name": "top",
           "kind": "InstanceBody",
-          "addr": 5793914365792,
+          "addr": 2389112596320,
           "members": [
             {
               "name": "q",
               "kind": "Variable",
-              "addr": 5793914366048,
+              "addr": 2389112596576,
               "type": "int$[$]",
               "lifetime": "Static"
             },
             {
               "name": "r",
               "kind": "Variable",
-              "addr": 5793914366192,
+              "addr": 2389112596720,
               "type": "int",
               "lifetime": "Static"
             },
             {
               "name": "",
               "kind": "ProceduralBlock",
-              "addr": 5793914366336,
+              "addr": 2389112596864,
               "procedureKind": "Initial",
               "body": {
                 "kind": "Block",
@@ -53,7 +53,7 @@
                           {
                             "kind": "NamedValue",
                             "type": "int$[$]",
-                            "symbol": "5793914366048 q"
+                            "symbol": "2389112596576 q"
                           },
                           {
                             "kind": "IntegerLiteral",
@@ -73,7 +73,7 @@
                           {
                             "kind": "NamedValue",
                             "type": "int$[$]",
-                            "symbol": "5793914366048 q"
+                            "symbol": "2389112596576 q"
                           },
                           {
                             "kind": "IntegerLiteral",
@@ -93,7 +93,7 @@
                           {
                             "kind": "NamedValue",
                             "type": "int$[$]",
-                            "symbol": "5793914366048 q"
+                            "symbol": "2389112596576 q"
                           },
                           {
                             "kind": "IntegerLiteral",
@@ -111,7 +111,7 @@
                         "left": {
                           "kind": "NamedValue",
                           "type": "int",
-                          "symbol": "5793914366192 r"
+                          "symbol": "2389112596720 r"
                         },
                         "right": {
                           "kind": "Call",
@@ -121,7 +121,7 @@
                             {
                               "kind": "NamedValue",
                               "type": "int$[$]",
-                              "symbol": "5793914366048 q"
+                              "symbol": "2389112596576 q"
                             }
                           ]
                         },
@@ -148,7 +148,7 @@
                               {
                                 "kind": "NamedValue",
                                 "type": "int$[$]",
-                                "symbol": "5793914366048 q"
+                                "symbol": "2389112596576 q"
                               }
                             ]
                           }
@@ -170,7 +170,7 @@
                           {
                             "kind": "NamedValue",
                             "type": "int",
-                            "symbol": "5793914366192 r"
+                            "symbol": "2389112596720 r"
                           }
                         ]
                       }
@@ -180,7 +180,7 @@
               }
             }
           ],
-          "definition": "5793913006080 top"
+          "definition": "2389111236096 top"
         },
         "connections": [
         ]
@@ -191,8 +191,8 @@
     {
       "name": "top",
       "kind": "Definition",
-      "addr": 5793913006080,
-      "defaultNetType": "5793911098560 wire",
+      "addr": 2389111236096,
+      "defaultNetType": "2389109329280 wire",
       "definitionKind": "Module",
       "defaultLifetime": "Static",
       "unconnectedDrive": "None",
