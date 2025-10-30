@@ -24,6 +24,7 @@ std::vector<std::string> collect_sv_files(const std::string& test_dir) {
 }
 
 ::testing::AssertionResult RunPrettyPrinterTest(const std::string& file) {
+    const std::string uvm_path = "-I./third_party/tests/uvm/src";
     fs::path test_dir = "tests_files";
     fs::path relative_path = fs::relative(file, test_dir);
 
@@ -34,12 +35,12 @@ std::vector<std::string> collect_sv_files(const std::string& test_dir) {
     new_output_file.close();
 
 
-    std::string parse_test_file = "slang_bin/slang --parse-only " + file + " > /dev/null 2>&1";
+    std::string parse_test_file = "slang_bin/slang --parse-only " + uvm_path + " " + file + " > /dev/null 2>&1";
     int result_test_file = std::system(parse_test_file.c_str());
 
     if (result_test_file != 0) {
-        // std::cout << "[  SKIPPED  ] Original file does not parse: "
-        //<< relative_path << std::endl;
+        std::cout << "[  SKIPPED  ] Original file does not parse: "
+        << relative_path << std::endl;
         std::filesystem::remove(output_file);
         return ::testing::AssertionSuccess();
     }
@@ -53,7 +54,7 @@ std::vector<std::string> collect_sv_files(const std::string& test_dir) {
                << "Program returned error for file: " << relative_path;
     }
 
-    std::string parse_pp_file = "slang_bin/slang --parse-only " + output_file + " > /dev/null 2>&1";
+    std::string parse_pp_file = "slang_bin/slang --parse-only " + uvm_path + " " + output_file + " > /dev/null 2>&1";
     int result_parsed = std::system(parse_pp_file.c_str());
 
     if (result_parsed != 0) {
@@ -65,10 +66,8 @@ std::vector<std::string> collect_sv_files(const std::string& test_dir) {
         }
     }
 
-    std::string ast_test_file = "slang_bin/slang --ast-json intermediate_files/orig_ast.json " +
-                                file + " > /dev/null 2>&1";
-    std::string ast_pp_file = "slang_bin/slang --ast-json intermediate_files/pp_ast.json " +
-                              output_file + " > /dev/null 2>&1";
+    std::string ast_test_file = "slang_bin/slang --ast-json intermediate_files/orig_ast.json " + uvm_path + " " + file + " > /dev/null 2>&1";
+    std::string ast_pp_file = "slang_bin/slang --ast-json intermediate_files/pp_ast.json " + uvm_path + " " + output_file + " > /dev/null 2>&1";
     std::system(ast_test_file.c_str());
     std::system(ast_pp_file.c_str());
 
