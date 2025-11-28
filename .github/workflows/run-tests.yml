@@ -2,7 +2,6 @@ name: Run SystemVerilog Tests
 
 on:
   push:
-    branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
 
@@ -16,17 +15,6 @@ jobs:
       with:
         submodules: recursive
         
-    - name: Cache build artifacts
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.cache/cmake
-          build
-          lib/slang/build
-        key: ${{ runner.os }}-build-${{ hashFiles('**/CMakeLists.txt', '**/*.cpp', '**/*.h', '**/*.sv') }}
-        restore-keys: |
-          ${{ runner.os }}-build-
-        
     - name: Install dependencies
       run: |
         sudo apt-get update
@@ -38,30 +26,13 @@ jobs:
           libgtest-dev \
           googletest
         
-    - name: Configure project
+    - name: Build project
       run: |
         mkdir -p build
         cd build
         cmake -DCMAKE_BUILD_TYPE=Release ..
-        
-    - name: Build project
-      run: |
-        cd build
         make -j4
-        
-    - name: List test files
-      run: |
-        find tests_files -name "*.sv" | head -20
-        echo "Total .sv files: $(find tests_files -name "*.sv" | wc -l)"
         
     - name: Run tests
       run: |
-        $GITHUB_WORKSPACE/build/run_tests
-        
-    - name: Upload test results
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-results
-        path: tests_files/result_of_test.sv
-        retention-days: 7
+        ../build/run_tests
