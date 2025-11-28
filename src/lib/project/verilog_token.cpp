@@ -1,0 +1,286 @@
+#include "../include/verilog_token.h"
+
+#include <iostream>
+
+using namespace std;
+using namespace slang;
+using namespace slang::syntax;
+using namespace slang::parsing;
+
+unordered_map<slang::parsing::TokenKind, FormatTokenType> token_to_format_type = {
+    {TokenKind::Placeholder, FormatTokenType::unknown},
+    {TokenKind::Unknown, FormatTokenType::unknown},
+    {TokenKind::EndOfFile, FormatTokenType::unknown},
+    {TokenKind::OneStep, FormatTokenType::unknown},
+    {TokenKind::LineContinuation, FormatTokenType::unknown},
+
+    // Группа 1: Идентификаторы
+    {TokenKind::Identifier, FormatTokenType::identifier},
+    {TokenKind::SystemIdentifier, FormatTokenType::system_identifier},
+    {TokenKind::Dollar, FormatTokenType::system_identifier},
+    {TokenKind::UnitSystemName, FormatTokenType::system_identifier},
+    {TokenKind::RootSystemName, FormatTokenType::system_identifier},
+
+    // Группа 2: Ключевые слова структурные
+    // Открывающие декларации
+    {TokenKind::ModuleKeyword, FormatTokenType::keyword_declaration_open},
+    {TokenKind::InterfaceKeyword, FormatTokenType::keyword_declaration_open},
+    {TokenKind::ProgramKeyword, FormatTokenType::keyword_declaration_open},
+    {TokenKind::PackageKeyword, FormatTokenType::keyword_declaration_open},
+    {TokenKind::ClassKeyword, FormatTokenType::keyword_declaration_open},
+    {TokenKind::FunctionKeyword, FormatTokenType::keyword_declaration_open},
+    {TokenKind::TaskKeyword, FormatTokenType::keyword_declaration_open},
+    {TokenKind::CheckerKeyword, FormatTokenType::keyword_declaration_open},
+    {TokenKind::ClockingKeyword, FormatTokenType::keyword_declaration_open},
+    {TokenKind::CoverGroupKeyword, FormatTokenType::keyword_declaration_open},
+    {TokenKind::GenerateKeyword, FormatTokenType::keyword_declaration_open},
+    {TokenKind::PrimitiveKeyword, FormatTokenType::keyword_declaration_open},
+    {TokenKind::SpecifyKeyword, FormatTokenType::keyword_declaration_open},
+    {TokenKind::ConfigKeyword, FormatTokenType::keyword_declaration_open},
+    {TokenKind::TableKeyword, FormatTokenType::keyword_declaration_open},
+    {TokenKind::PropertyKeyword, FormatTokenType::keyword_declaration_open},
+    {TokenKind::SequenceKeyword, FormatTokenType::keyword_declaration_open},
+
+    // Закрывающие декларации
+    {TokenKind::EndModuleKeyword, FormatTokenType::keyword_declaration_close},
+    {TokenKind::EndInterfaceKeyword, FormatTokenType::keyword_declaration_close},
+    {TokenKind::EndProgramKeyword, FormatTokenType::keyword_declaration_close},
+    {TokenKind::EndPackageKeyword, FormatTokenType::keyword_declaration_close},
+    {TokenKind::EndClassKeyword, FormatTokenType::keyword_declaration_close},
+    {TokenKind::EndFunctionKeyword, FormatTokenType::keyword_declaration_close},
+    {TokenKind::EndTaskKeyword, FormatTokenType::keyword_declaration_close},
+    {TokenKind::EndCheckerKeyword, FormatTokenType::keyword_declaration_close},
+    {TokenKind::EndClockingKeyword, FormatTokenType::keyword_declaration_close},
+    {TokenKind::EndGroupKeyword, FormatTokenType::keyword_declaration_close},
+    {TokenKind::EndGenerateKeyword, FormatTokenType::keyword_declaration_close},
+    {TokenKind::EndPrimitiveKeyword, FormatTokenType::keyword_declaration_close},
+    {TokenKind::EndSpecifyKeyword, FormatTokenType::keyword_declaration_close},
+    {TokenKind::EndConfigKeyword, FormatTokenType::keyword_declaration_close},
+    {TokenKind::EndTableKeyword, FormatTokenType::keyword_declaration_close},
+    {TokenKind::EndPropertyKeyword, FormatTokenType::keyword_declaration_close},
+    {TokenKind::EndSequenceKeyword, FormatTokenType::keyword_declaration_close},
+
+    // Ключевые слова потока
+    {TokenKind::IfKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::ElseKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::ForKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::WhileKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::DoKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::ForeachKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::RepeatKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::ForeverKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::CaseKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::CaseXKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::CaseZKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::DefaultKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::BeginKeyword, FormatTokenType::keyword_declaration_open}, // !!!!!!!!
+    {TokenKind::EndKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::ForkKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::JoinKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::JoinAnyKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::JoinNoneKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::AlwaysKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::AlwaysCombKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::AlwaysFFKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::AlwaysLatchKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::InitialKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::FinalKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::WaitKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::WaitOrderKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::DisableKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::BreakKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::ContinueKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::ReturnKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::AssignKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::DeassignKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::ForceKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::ReleaseKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::DistKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::InsideKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::MatchesKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::RandCaseKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::RandSequenceKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::SolveKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::WithKeyword, FormatTokenType::keyword_flow},
+    {TokenKind::WithinKeyword, FormatTokenType::keyword_flow},
+
+    // Assertions
+    {TokenKind::AssertKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::AssumeKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::CoverKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::RestrictKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::AcceptOnKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::BeforeKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::BinsKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::BinsOfKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::CoverPointKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::CrossKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::EventuallyKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::ExpectKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::FirstMatchKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::IffKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::IfNoneKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::IgnoreBinsKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::IllegalBinsKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::ImpliesKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::IntersectKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::LetKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::NextTimeKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::RejectOnKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::SAlwaysKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::SEventuallyKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::SNextTimeKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::SUntilKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::SUntilWithKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::SyncAcceptOnKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::SyncRejectOnKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::ThroughoutKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::UntilKeyword, FormatTokenType::keyword_assertion},
+    {TokenKind::UntilWithKeyword, FormatTokenType::keyword_assertion},
+
+    // Группа 3: Литералы
+    {TokenKind::StringLiteral, FormatTokenType::string_literal},
+    {TokenKind::IntegerLiteral, FormatTokenType::numeric_literal},
+    {TokenKind::IntegerBase, FormatTokenType::numeric_base},
+    {TokenKind::UnbasedUnsizedLiteral, FormatTokenType::numeric_literal},
+    {TokenKind::RealLiteral, FormatTokenType::numeric_literal},
+    {TokenKind::TimeLiteral, FormatTokenType::time_literal},
+    {TokenKind::IncludeFileName, FormatTokenType::string_literal},
+
+    // Группа 4: Операторы
+    // Бинарные операторы
+    {TokenKind::Plus, FormatTokenType::our_operator},
+    {TokenKind::Minus, FormatTokenType::our_operator},
+    {TokenKind::Star, FormatTokenType::our_operator},
+    {TokenKind::Slash, FormatTokenType::our_operator},
+    {TokenKind::Percent, FormatTokenType::our_operator},
+    {TokenKind::DoubleStar, FormatTokenType::our_operator},
+    {TokenKind::DoubleEquals, FormatTokenType::our_operator},
+    {TokenKind::ExclamationEquals, FormatTokenType::our_operator},
+    {TokenKind::TripleEquals, FormatTokenType::our_operator},
+    {TokenKind::LessThan, FormatTokenType::our_operator},
+    {TokenKind::GreaterThan, FormatTokenType::our_operator},
+    {TokenKind::LessThanEquals, FormatTokenType::our_operator},
+    {TokenKind::GreaterThanEquals, FormatTokenType::our_operator},
+    {TokenKind::DoubleAnd, FormatTokenType::our_operator},
+    {TokenKind::DoubleOr, FormatTokenType::our_operator},
+    {TokenKind::And, FormatTokenType::our_operator},
+    {TokenKind::Or, FormatTokenType::our_operator},
+    {TokenKind::Xor, FormatTokenType::our_operator},
+    {TokenKind::LeftShift, FormatTokenType::our_operator},
+    {TokenKind::RightShift, FormatTokenType::our_operator},
+    {TokenKind::TripleLeftShift, FormatTokenType::our_operator},
+    {TokenKind::TripleRightShift, FormatTokenType::our_operator},
+    {TokenKind::StarArrow, FormatTokenType::our_operator},
+    {TokenKind::DoublePlus, FormatTokenType::our_operator},
+    {TokenKind::DoubleMinus, FormatTokenType::our_operator},
+    {TokenKind::XorTilde, FormatTokenType::our_operator},
+    {TokenKind::DoubleEqualsQuestion, FormatTokenType::our_operator},
+    {TokenKind::ExclamationEqualsQuestion, FormatTokenType::our_operator},
+    {TokenKind::ExclamationDoubleEquals, FormatTokenType::our_operator},
+    {TokenKind::DoubleAt, FormatTokenType::our_operator},
+    {TokenKind::ColonSlash, FormatTokenType::our_operator},
+    {TokenKind::TripleAnd, FormatTokenType::our_operator},
+    {TokenKind::PlusColon, FormatTokenType::our_operator},
+    {TokenKind::PlusDivMinus, FormatTokenType::our_operator},
+    {TokenKind::PlusModMinus, FormatTokenType::our_operator},
+    {TokenKind::MinusColon, FormatTokenType::our_operator},
+
+    // Операторы присваивания
+    {TokenKind::Equals, FormatTokenType::our_operator},
+    {TokenKind::PlusEqual, FormatTokenType::our_operator},
+    {TokenKind::MinusEqual, FormatTokenType::our_operator},
+    {TokenKind::SlashEqual, FormatTokenType::our_operator},
+    {TokenKind::StarEqual, FormatTokenType::our_operator},
+    {TokenKind::AndEqual, FormatTokenType::our_operator},
+    {TokenKind::OrEqual, FormatTokenType::our_operator},
+    {TokenKind::PercentEqual, FormatTokenType::our_operator},
+    {TokenKind::XorEqual, FormatTokenType::our_operator},
+    {TokenKind::LeftShiftEqual, FormatTokenType::our_operator},
+    {TokenKind::TripleLeftShiftEqual, FormatTokenType::our_operator},
+    {TokenKind::RightShiftEqual, FormatTokenType::our_operator},
+    {TokenKind::TripleRightShiftEqual, FormatTokenType::our_operator},
+    {TokenKind::ColonEquals, FormatTokenType::our_operator},
+
+    // Унарные операторы
+    {TokenKind::Exclamation, FormatTokenType::unary_operator},
+    {TokenKind::Tilde, FormatTokenType::unary_operator},
+    {TokenKind::TildeAnd, FormatTokenType::unary_operator},
+    {TokenKind::TildeOr, FormatTokenType::unary_operator},
+    {TokenKind::TildeXor, FormatTokenType::unary_operator},
+
+    // Тернарный оператор
+    {TokenKind::Question, FormatTokenType::our_operator},
+
+    // Операторы задержки
+    {TokenKind::Hash, FormatTokenType::delay_operator},
+    {TokenKind::DoubleHash, FormatTokenType::delay_operator},
+    {TokenKind::HashMinusHash, FormatTokenType::delay_operator},
+    {TokenKind::HashEqualsHash, FormatTokenType::delay_operator},
+
+    // Операторы паттернов
+    {TokenKind::MinusArrow, FormatTokenType::pattern_operator},
+    {TokenKind::EqualsArrow, FormatTokenType::pattern_operator},
+    {TokenKind::MinusDoubleArrow, FormatTokenType::pattern_operator},
+    {TokenKind::LessThanMinusArrow, FormatTokenType::pattern_operator},
+    {TokenKind::OrMinusArrow, FormatTokenType::pattern_operator},
+    {TokenKind::OrEqualsArrow, FormatTokenType::pattern_operator},
+
+    // Группа 5: Группирующие символы
+    {TokenKind::OpenBrace, FormatTokenType::open_group},
+    {TokenKind::CloseBrace, FormatTokenType::close_group},
+    {TokenKind::OpenBracket, FormatTokenType::open_group},
+    {TokenKind::CloseBracket, FormatTokenType::close_group},
+    {TokenKind::OpenParenthesis, FormatTokenType::open_group},
+    {TokenKind::CloseParenthesis, FormatTokenType::close_group},
+    {TokenKind::ApostropheOpenBrace, FormatTokenType::open_group},
+
+    // Группа 6: Разделители и иерархия
+    {TokenKind::Semicolon, FormatTokenType::separator},
+    {TokenKind::Comma, FormatTokenType::separator},
+    {TokenKind::Apostrophe, FormatTokenType::separator},
+    {TokenKind::At, FormatTokenType::event_operator}, // должно быть в другой группе
+    {TokenKind::Colon, FormatTokenType::colon},
+    {TokenKind::Dot, FormatTokenType::hierarchy},
+    {TokenKind::DoubleColon, FormatTokenType::hierarchy},
+
+    // Группа 7: Edge descriptors
+    {TokenKind::EdgeKeyword, FormatTokenType::edge_descriptor},
+    {TokenKind::PosEdgeKeyword, FormatTokenType::edge_descriptor},
+    {TokenKind::NegEdgeKeyword, FormatTokenType::edge_descriptor},
+
+    // Группа 8: Препроцессор
+    {TokenKind::Directive, FormatTokenType::preprocessor_directive},
+    {TokenKind::IncDirKeyword, FormatTokenType::preprocessor_directive},
+    {TokenKind::IncludeKeyword, FormatTokenType::preprocessor_directive},
+    {TokenKind::MacroUsage, FormatTokenType::macro_usage},
+    {TokenKind::MacroQuote, FormatTokenType::macro_usage},
+    {TokenKind::MacroTripleQuote, FormatTokenType::macro_usage},
+    {TokenKind::MacroEscapedQuote, FormatTokenType::macro_usage},
+    {TokenKind::MacroPaste, FormatTokenType::macro_usage},
+    {TokenKind::EmptyMacroArgument, FormatTokenType::macro_usage},
+
+    {TokenKind::InputKeyword, FormatTokenType::keyword_other},
+    {TokenKind::OutputKeyword, FormatTokenType::keyword_other},
+    {TokenKind::InOutKeyword, FormatTokenType::keyword_other},
+    {TokenKind::RefKeyword, FormatTokenType::keyword_other},
+    {TokenKind::IntKeyword, FormatTokenType::keyword_other},
+    {TokenKind::IntegerKeyword, FormatTokenType::keyword_other},
+    {TokenKind::LongIntKeyword, FormatTokenType::keyword_other},
+    {TokenKind::ShortIntKeyword, FormatTokenType::keyword_other},
+    {TokenKind::ByteKeyword, FormatTokenType::keyword_other},
+    {TokenKind::BitKeyword, FormatTokenType::keyword_other},
+    {TokenKind::LogicKeyword, FormatTokenType::keyword_other},
+    {TokenKind::RegKeyword, FormatTokenType::keyword_other},
+    {TokenKind::ClassKeyword, FormatTokenType::keyword_other},
+    {TokenKind::StructKeyword, FormatTokenType::keyword_other},
+    {TokenKind::UnionKeyword, FormatTokenType::keyword_other},
+    {TokenKind::EnumKeyword, FormatTokenType::keyword_other}};
+
+FormatTokenType getFormatTokenType(TokenKind kind) {
+    auto it = token_to_format_type.find(kind);
+    if (it != token_to_format_type.end()) {
+        return it->second;
+    }
+    return FormatTokenType::unknown;
+}
