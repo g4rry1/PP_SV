@@ -26,6 +26,10 @@ jobs:
           libgtest-dev \
           googletest
         
+    - name: Format code
+      run: |
+        find . -name '*.cpp' -o -name '*.h' -o -name '*.hpp' | xargs clang-format -i
+
     - name: Build project
       run: |
         mkdir -p build

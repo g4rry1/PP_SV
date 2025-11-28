@@ -2,185 +2,114 @@
   "design": {
     "name": "$root",
     "kind": "Root",
-    "addr": 6586835883200,
+    "addr": 4546659308640,
     "members": [
       {
         "name": "",
         "kind": "CompilationUnit",
-        "addr": 6586839148088
+        "addr": 4546662503992
       },
       {
         "name": "top",
         "kind": "Instance",
-        "addr": 6586839149040,
+        "addr": 4546662504784,
         "body": {
           "name": "top",
           "kind": "InstanceBody",
-          "addr": 6586839148384,
+          "addr": 4546662504288,
           "members": [
             {
-              "name": "q",
-              "kind": "Variable",
-              "addr": 6586839148640,
-              "type": "int$[$]",
-              "lifetime": "Static"
+              "name": "a",
+              "kind": "Port",
+              "addr": 4546662504920,
+              "type": "logic",
+              "direction": "In",
+              "internalSymbol": "4546662505048 a"
             },
             {
-              "name": "r",
-              "kind": "Variable",
-              "addr": 6586839148784,
-              "type": "int",
-              "lifetime": "Static"
+              "name": "a",
+              "kind": "Net",
+              "addr": 4546662505048,
+              "type": "logic",
+              "netType": {
+                "name": "wire",
+                "kind": "NetType",
+                "addr": 4546659306720,
+                "type": "logic"
+              }
+            },
+            {
+              "name": "b",
+              "kind": "Port",
+              "addr": 4546662505216,
+              "type": "logic",
+              "direction": "In",
+              "internalSymbol": "4546662505344 b"
+            },
+            {
+              "name": "b",
+              "kind": "Net",
+              "addr": 4546662505344,
+              "type": "logic",
+              "netType": {
+                "name": "wire",
+                "kind": "NetType",
+                "addr": 4546659306720,
+                "type": "logic"
+              }
+            },
+            {
+              "name": "w",
+              "kind": "Net",
+              "addr": 4546662504544,
+              "type": "logic",
+              "netType": {
+                "name": "wire",
+                "kind": "NetType",
+                "addr": 4546659306720,
+                "type": "logic"
+              },
+              "delay": {
+                "kind": "Delay",
+                "expr": {
+                  "kind": "IntegerLiteral",
+                  "type": "int",
+                  "value": "10"
+                }
+              }
             },
             {
               "name": "",
-              "kind": "ProceduralBlock",
-              "addr": 6586839148928,
-              "procedureKind": "Initial",
-              "body": {
-                "kind": "Block",
-                "blockKind": "Sequential",
-                "body": {
-                  "kind": "List",
-                  "list": [
-                    {
-                      "kind": "ExpressionStatement",
-                      "expr": {
-                        "kind": "Call",
-                        "type": "void",
-                        "subroutine": "push_back",
-                        "arguments": [
-                          {
-                            "kind": "NamedValue",
-                            "type": "int$[$]",
-                            "symbol": "6586839148640 q"
-                          },
-                          {
-                            "kind": "IntegerLiteral",
-                            "type": "int",
-                            "value": "2"
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "kind": "ExpressionStatement",
-                      "expr": {
-                        "kind": "Call",
-                        "type": "void",
-                        "subroutine": "push_back",
-                        "arguments": [
-                          {
-                            "kind": "NamedValue",
-                            "type": "int$[$]",
-                            "symbol": "6586839148640 q"
-                          },
-                          {
-                            "kind": "IntegerLiteral",
-                            "type": "int",
-                            "value": "3"
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "kind": "ExpressionStatement",
-                      "expr": {
-                        "kind": "Call",
-                        "type": "void",
-                        "subroutine": "push_back",
-                        "arguments": [
-                          {
-                            "kind": "NamedValue",
-                            "type": "int$[$]",
-                            "symbol": "6586839148640 q"
-                          },
-                          {
-                            "kind": "IntegerLiteral",
-                            "type": "int",
-                            "value": "4"
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "kind": "ExpressionStatement",
-                      "expr": {
-                        "kind": "Assignment",
-                        "type": "int",
-                        "left": {
-                          "kind": "NamedValue",
-                          "type": "int",
-                          "symbol": "6586839148784 r"
-                        },
-                        "right": {
-                          "kind": "Call",
-                          "type": "int",
-                          "subroutine": "pop_back",
-                          "arguments": [
-                            {
-                              "kind": "NamedValue",
-                              "type": "int$[$]",
-                              "symbol": "6586839148640 q"
-                            }
-                          ]
-                        },
-                        "isNonBlocking": false
-                      }
-                    },
-                    {
-                      "kind": "ExpressionStatement",
-                      "expr": {
-                        "kind": "Call",
-                        "type": "void",
-                        "subroutine": "$display",
-                        "arguments": [
-                          {
-                            "kind": "StringLiteral",
-                            "type": "bit[143:0]",
-                            "literal": ":assert: (%d == 2)"
-                          },
-                          {
-                            "kind": "Call",
-                            "type": "int",
-                            "subroutine": "size",
-                            "arguments": [
-                              {
-                                "kind": "NamedValue",
-                                "type": "int$[$]",
-                                "symbol": "6586839148640 q"
-                              }
-                            ]
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "kind": "ExpressionStatement",
-                      "expr": {
-                        "kind": "Call",
-                        "type": "void",
-                        "subroutine": "$display",
-                        "arguments": [
-                          {
-                            "kind": "StringLiteral",
-                            "type": "bit[143:0]",
-                            "literal": ":assert: (%d == 4)"
-                          },
-                          {
-                            "kind": "NamedValue",
-                            "type": "int",
-                            "symbol": "6586839148784 r"
-                          }
-                        ]
-                      }
-                    }
-                  ]
-                }
+              "kind": "ContinuousAssign",
+              "addr": 4546662505528,
+              "assignment": {
+                "kind": "Assignment",
+                "type": "logic",
+                "left": {
+                  "kind": "NamedValue",
+                  "type": "logic",
+                  "symbol": "4546662504544 w"
+                },
+                "right": {
+                  "kind": "BinaryOp",
+                  "type": "logic",
+                  "op": "BinaryAnd",
+                  "left": {
+                    "kind": "NamedValue",
+                    "type": "logic",
+                    "symbol": "4546662505048 a"
+                  },
+                  "right": {
+                    "kind": "NamedValue",
+                    "type": "logic",
+                    "symbol": "4546662505344 b"
+                  }
+                },
+                "isNonBlocking": false
               }
             }
           ],
-          "definition": "6586837787904 top"
+          "definition": "4546661213184 top"
         },
         "connections": [
         ]
@@ -191,8 +120,8 @@
     {
       "name": "top",
       "kind": "Definition",
-      "addr": 6586837787904,
-      "defaultNetType": "6586835881440 wire",
+      "addr": 4546661213184,
+      "defaultNetType": "4546659306720 wire",
       "definitionKind": "Module",
       "defaultLifetime": "Static",
       "unconnectedDrive": "None",

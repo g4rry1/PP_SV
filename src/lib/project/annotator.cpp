@@ -57,6 +57,12 @@ bool TokenAnnotator::needs_space_after(const my_token& prev, my_token& curr, con
     //     }
     //     return false;
     // }
+    if (next.kind == hierarchy || curr.kind == hierarchy) {
+        return false;
+    }
+    if (curr.kind == comment) {
+        return false;
+    }
     if (prev.kind == unknown && curr.kind == identifier) {
         return true; // костыль
     }
@@ -79,6 +85,9 @@ bool TokenAnnotator::needs_space_befor(const my_token& prev, const my_token& cur
                                        [[maybe_unused]] const format_context& ctx) {
     if (prev.text[0] == '\\') {
         return true;
+    }
+    if (prev.kind == hierarchy || curr.kind == hierarchy) {
+        return false;
     }
     if (ctx.in_group()) {
         if (curr.kind == our_operator || curr.kind == unary_operator || curr.kind == colon ||
