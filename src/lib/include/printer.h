@@ -1,16 +1,16 @@
 #pragma once
-#include <slang/driver/Driver.h>
-#include <slang/syntax/SyntaxPrinter.h>
+#include "../include/annotator.h"
+#include "verilog_token.h"
 #include <fstream>
 #include <regex>
+#include <slang/driver/Driver.h>
+#include <slang/syntax/SyntaxPrinter.h>
 
-#include "../include/annotator.h"
 #include "slang/parsing/ParserMetadata.h"
 #include "slang/syntax/AllSyntax.h"
 #include "slang/syntax/SyntaxTree.h"
 #include "slang/text/SourceLocation.h"
 #include "slang/text/SourceManager.h"
-#include "verilog_token.h"
 
 using namespace std;
 using namespace slang;
