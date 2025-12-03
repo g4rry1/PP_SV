@@ -1,73 +1,84 @@
-# PP_SV - pretty printer SystemVerilog
-PP_SV — это претити-принтер (pretty printer), созданный для приведения кода SystemVerilog к единому стандарту оформления. Его работа основана на синтаксическом анализе с использованием библиотеки Slang. Построив Concrete Syntax Tree (CST), PP_SV  полностью реконструирует код, обеспечивая читаемость и последовательный стиль во всём коде.
+# PP_SV - SystemVerilog Pretty Printer
 
+PP_SV is a pretty printer designed to format SystemVerilog code according to a unified styling standard. It operates through syntax analysis using the Slang library. By constructing a Concrete Syntax Tree (CST), PP_SV completely reconstructs the code, ensuring readability and consistent style throughout the entire codebase.
 
-## 🚀 Установка и сборка
+## 🚀 Installation and Build
 
-### 📥 Клонирование проекта
+### 📥 Cloning the Project
 
-Проект использует git submodules для зависимостей. Для корректного клонирования выполните:
+The project uses git submodules for dependencies. To clone it correctly, run:
 
-# Клонирование с автоматической инициализацией сабмодулей
+# Cloning with automatic submodule initialization
+
 ```bash
 git clone --recurse-submodules https://github.com/g4rry1/PP_SV.git
 ```
-Если вы уже склонировали проект без сабмодулей:
 
-# Инициализация и обновление сабмодулей
+If you've already cloned the project without submodules:
+
+# Initializing and updating submodules
+
 ```bash
 git submodule update --init --recursive
 ```
-## 🔨 Сборка проекта
 
-### Создание папки для сборки
+## 🔨 Building the Project
+
+### Creating a Build Directory
+
 ```bash
 mkdir build && cd build
 cmake ..
-cmake --build . (или make)
+cmake --build . (or make)
 ```
 
-### ✅ Проверка установки
+### ✅ Verification
 
-После успешной сборки запустите:
+After successful build, run:
+
 ```bash
-./my_project (путь к SystemVerilog файлу)
+./my_project [path to SystemVerilog file]
 ```
 
-## Тестирования
-### Для тестирования используется библиотека "Google Test". 
-Если у вас её нет, выполните:
+## Testing
+
+### The project uses the "Google Test" framework for testing.
+
+If you don't have it installed, run:
+
 ```bash
 sudo apt-get install libgtest-dev
 ```
-### Запуск тестов
+
+### Running Tests
+
 ```bash
-cd build
-make check 
+./build/run_tests
 ```
 
+## 📚 Used Submodules
 
-## 📚 Используемые сабмодули
+The project uses the following libraries as submodules:
 
-Проект использует следующие библиотеки как сабмодули:
+| Library                                             | Purpose                          |
+| --------------------------------------------------- | -------------------------------- |
+| [slang](https://github.com/MikePopoloski/slang.git) | SystemVerilog processing library |
 
-| Библиотека | Назначение |
-|------------|------------|
-| [slang](https://github.com/MikePopoloski/slang.git) | Библиотека для работы с SystemVerilog |
+#### 🔄 Updating Submodules
 
-#### 🔄 Обновление сабмодулей
+To update dependencies to the latest versions:
 
-Для обновления зависимостей до последних версий:
 ```bash
 git submodule update --remote --recursive
 ```
-## Устранение проблем
 
-Если возникают ошибки при сборке, связанные с зависимостями:
+## Troubleshooting
 
-### Полная переинициализация сабмодулей:
+If you encounter build errors related to dependencies:
+
+### Complete Submodule Reinitialization:
+
 ```bash
 git submodule deinit --all
-
 git submodule update --init --recursive
 ```
