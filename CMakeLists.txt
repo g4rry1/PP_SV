@@ -11,21 +11,18 @@ if(NOT EXISTS ${CMAKE_SOURCE_DIR}/lib/slang)
     message(FATAL_ERROR "Slang submodule not found! Run: git submodule update --init --recursive")
 endif()
 
-# Добавляем slang ПЕРВЫМ, чтобы он мог управлять зависимостями
+
 add_subdirectory(lib/slang ${CMAKE_BINARY_DIR}/slang_build)
 
 if(EXISTS ${CMAKE_SOURCE_DIR}/lib/prettyprint)
     add_subdirectory(lib/prettyprint ${CMAKE_BINARY_DIR}/prettyprint_build)
 endif()
 
-# Автоматический поиск исходных файлов вместо жесткого указания
 file(GLOB_RECURSE MAIN_SOURCES "src/lib/*.cpp")
 file(GLOB_RECURSE TEST_SOURCES "src/tests/*.cpp")
 
-# Проверка существования файлов
 if(NOT MAIN_SOURCES)
     message(WARNING "No source files found in src/lib/")
-    # Создаем пустой список чтобы избежать ошибки
     set(MAIN_SOURCES "")
 endif()
 
@@ -47,7 +44,7 @@ target_compile_options(main PRIVATE
 target_include_directories(main PRIVATE
     lib/slang/include
     lib/slang/external
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/lib  # Добавляем путь к исходникам
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/lib  
 )
 
 if(EXISTS ${CMAKE_SOURCE_DIR}/lib/prettyprint)
@@ -56,13 +53,10 @@ if(EXISTS ${CMAKE_SOURCE_DIR}/lib/prettyprint)
     )
 endif()
 
-# ИСПРАВЛЕНИЕ: Правильное подключение библиотеки Slang
-# Используем цель, которую создает сам Slang
 target_link_libraries(main PRIVATE slang::slang)
 
 enable_testing()
 
-# Добавляем тесты только если есть test files
 if(TEST_SOURCES)
     add_executable(run_tests ${TEST_SOURCES})
     
@@ -75,7 +69,7 @@ if(TEST_SOURCES)
     target_include_directories(run_tests PRIVATE
         lib/slang/include
         lib/slang/external
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/tests  # Добавляем путь к тестам
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/tests
     )
 
     target_link_libraries(run_tests PRIVATE slang::slang)
@@ -88,7 +82,6 @@ add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure)
 find_program(CLANG_FORMAT_EXE NAMES clang-format)
 
 if(CLANG_FORMAT_EXE)
-    # Автоматически находим все исходные файлы для форматирования
     file(GLOB_RECURSE FORMAT_SOURCE_FILES
         "src/*.cpp"
         "src/*.h"
@@ -103,6 +96,5 @@ if(CLANG_FORMAT_EXE)
     )
 endif()
 
-# Для отладки - выводим найденные файлы
 message(STATUS "Main sources: ${MAIN_SOURCES}")
 message(STATUS "Test sources: ${TEST_SOURCES}")

@@ -39,4 +39,4 @@ jobs:
         
     - name: Run tests
       run: |
-        ../build/run_tests
+        $GITHUB_WORKSPACE/build/run_tests
