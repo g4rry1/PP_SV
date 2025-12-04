@@ -9,7 +9,6 @@ PP_SV is a pretty printer designed to format SystemVerilog code according to a u
 The project uses git submodules for dependencies. To clone it correctly, run:
 
 # Cloning with automatic submodule initialization
-
 ```bash
 git clone --recurse-submodules https://github.com/g4rry1/PP_SV.git
 ```
@@ -17,7 +16,6 @@ git clone --recurse-submodules https://github.com/g4rry1/PP_SV.git
 If you've already cloned the project without submodules:
 
 # Initializing and updating submodules
-
 ```bash
 git submodule update --init --recursive
 ```
@@ -25,7 +23,6 @@ git submodule update --init --recursive
 ## 🔨 Building the Project
 
 ### Creating a Build Directory
-
 ```bash
 mkdir build && cd build
 cmake ..
@@ -35,39 +32,34 @@ cmake --build . (or make)
 ### ✅ Verification
 
 After successful build, run:
-
 ```bash
 ./my_project [path to SystemVerilog file]
 ```
 
 ## Testing
-
 ### The project uses the "Google Test" framework for testing.
-
 If you don't have it installed, run:
-
 ```bash
 sudo apt-get install libgtest-dev
 ```
 
 ### Running Tests
-
 ```bash
-./build/run_tests
+cd build
+make check
 ```
 
 ## 📚 Used Submodules
 
 The project uses the following libraries as submodules:
 
-| Library                                             | Purpose                          |
-| --------------------------------------------------- | -------------------------------- |
+| Library | Purpose |
+|---------|---------|
 | [slang](https://github.com/MikePopoloski/slang.git) | SystemVerilog processing library |
 
 #### 🔄 Updating Submodules
 
 To update dependencies to the latest versions:
-
 ```bash
 git submodule update --remote --recursive
 ```
@@ -77,7 +69,6 @@ git submodule update --remote --recursive
 If you encounter build errors related to dependencies:
 
 ### Complete Submodule Reinitialization:
-
 ```bash
 git submodule deinit --all
 git submodule update --init --recursive

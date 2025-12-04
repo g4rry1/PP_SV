@@ -6,26 +6,14 @@
 //
 // SPDX-License-Identifier: ISC
 /*
-:name: pop_back
-:description: Test queues pop_back function support
-:tags: 7.10.2.5 7.10.2
-:type: simulation elaboration parsing
-:unsynthesizable: 1
+:name: cont_assignment_net_delay
+:description: continuous assignment with net delay test
+:tags: 10.3.3
 */
 
- module  top();
-	 int  q [$];
-	 int  r ;
-	
-	 initial  begin
-	 q . push_back(2);
-		 q . push_back(3);
-		 q . push_back(4);
-		 r  =  q . pop_back ;
-		$display (":assert: (%d == 2)",  q . size );
-		$display (":assert: (%d == 4)",  r );
-		
-	 end
+ module  top( input  a ,  input  b );
+	 wire  # 10 w ;
+	 assign  w  =  a  &  b ;
 	
  endmodule
 
