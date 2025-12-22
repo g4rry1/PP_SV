@@ -45,4 +45,12 @@ jobs:
         
     - name: Run tests
       run: |
-        $GITHUB_WORKSPACE/build/run_tests
+        # Перейти в build и запустить тесты оттуда — тогда ../src/tests/tests_data найдётся корректно.
+        set -e
+        cd "$GITHUB_WORKSPACE/build"
+        echo "cwd: $(pwd)"
+        echo "ls ../src/tests:"
+        ls -la ../src/tests || true
+        echo "ls ../src/tests/tests_data:"
+        ls -la ../src/tests/tests_data || true
+        ./run_tests
