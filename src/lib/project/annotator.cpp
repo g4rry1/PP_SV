@@ -1,7 +1,9 @@
 #include "../include/annotator.h"
 
+#include "../include/printer.h"
 #include "../include/verilog_token.h"
-// #include <iostream>
+#include <iostream>
+#include <memory>
 #include <vector>
 
 using namespace std;
